@@ -4,18 +4,19 @@ namespace App\Livewire\Admin;
 
 use App\Domain\Academic\Actions\CreateClassGroup;
 use App\Domain\Academic\Actions\CreateSubjectAssignment;
-use App\Domain\School\TenantContext;
 use App\Domain\Teacher\Actions\CreateTeacherAssignment;
 use App\Models\AcademicClass;
 use App\Models\AcademicGroup;
 use App\Models\AcademicYear;
 use App\Models\ClassGroup;
+use App\Models\School;
 use App\Models\Section;
 use App\Models\Staff;
 use App\Models\Subject;
 use App\Models\SubjectAssignment;
 use App\Models\Teacher;
 use App\Models\TeacherAssignment;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -28,12 +29,14 @@ class PhaseThreeManagement extends Component
     public function mount(string $screen = 'teachers'): void
     {
         $this->screen = $screen;
+        $this->form['status'] = 'active';
     }
 
     public function save(): void
     {
-        $school = app(TenantContext::class)->id();
+        $school = $this->activeSchoolId();
         abort_unless($school, 403);
+        Gate::authorize('update', School::findOrFail($school));
         if ($this->screen === 'teachers') {
             $d = $this->validate(['form.employee_code' => ['required', 'max:255', Rule::unique('teachers', 'employee_code')->where('school_id', $school)], 'form.first_name' => 'required', 'form.last_name' => 'nullable', 'form.joining_date' => 'nullable|date', 'form.status' => 'required']);
             Teacher::create(array_merge($d['form'], ['school_id' => $school]));
@@ -50,17 +53,30 @@ class PhaseThreeManagement extends Component
             $d = $this->validate(['form.teacher_id' => 'required|integer', 'form.academic_year_id' => 'required|integer', 'form.class_id' => 'required|integer', 'form.section_id' => 'required|integer', 'form.subject_assignment_id' => 'required|integer', 'form.group_id' => 'nullable|integer']);
             app(CreateTeacherAssignment::class)->handle(array_merge($d['form'], ['school_id' => $school]));
         }$this->reset('form');
+        $this->form['status'] = 'active';
         session()->flash('status', 'Saved successfully.');
     }
 
     public function render()
     {
-        $s = app(TenantContext::class)->id();
+        $s = $this->activeSchoolId();
         $base = ['years' => AcademicYear::forSchool($s)->get(), 'classes' => AcademicClass::forSchool($s)->get(), 'groups' => AcademicGroup::forSchool($s)->get(), 'subjects' => Subject::forSchool($s)->get(), 'teachers' => Teacher::forSchool($s)->get(), 'sections' => Section::forSchool($s)->get(), 'subjectAssignments' => SubjectAssignment::where('school_id', $s)->get()];
         $base['records'] = match ($this->screen) {
             'teachers' => Teacher::forSchool($s)->get(),'staff' => Staff::forSchool($s)->get(),'class-groups' => ClassGroup::where('school_id', $s)->get(),'subject-assignments' => SubjectAssignment::where('school_id', $s)->get(),'teacher-assignments' => TeacherAssignment::where('school_id', $s)->get(),default => collect()
         };
 
-        return view('livewire.admin.phase-three-management',$base);
+        $base['sections'] = isset($this->form['class_id']) ? Section::forSchool($s)->where('class_id', $this->form['class_id'])->get() : collect();
+        $base['groups'] = isset($this->form['class_id']) ? AcademicGroup::forSchool($s)->whereIn('id', ClassGroup::where('school_id', $s)->where('class_id', $this->form['class_id'])->pluck('group_id'))->get() : collect();
+        $base['subjectAssignments'] = isset($this->form['class_id'], $this->form['academic_year_id']) ? SubjectAssignment::where('school_id', $s)->where('class_id', $this->form['class_id'])->where('academic_year_id', $this->form['academic_year_id'])->get() : collect();
+
+        return view('livewire.admin.phase-three-management', $base);
+    }
+
+    private function activeSchoolId(): int
+    {
+        $school = (int) session('active_school_id');
+        abort_unless($school && School::find($school)?->hasActiveMember(auth()->user()), 403);
+
+        return $school;
     }
 }

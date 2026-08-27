@@ -17,7 +17,7 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
         return response()->json(['id' => $school->id, 'name' => $school->name]);
     })->name('schools.show');
 
-    Route::prefix('schools/{school}/admin')->middleware('can:update,school')->group(function () {
+    Route::prefix('schools/{school}/admin')->middleware('school.admin')->group(function () {
         Route::get('/teachers', PhaseThreeManagement::class)->defaults('screen', 'teachers')->name('admin.teachers');
         Route::get('/staff', PhaseThreeManagement::class)->defaults('screen', 'staff')->name('admin.staff');
         Route::get('/academic/class-groups', PhaseThreeManagement::class)->defaults('screen', 'class-groups')->name('admin.class-groups');
@@ -25,4 +25,5 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
         Route::get('/academic/teacher-assignments', PhaseThreeManagement::class)->defaults('screen', 'teacher-assignments')->name('admin.teacher-assignments');
     });
     Route::get('schools/{school}/teacher/assignments', MyAssignments::class)->name('teacher.assignments');
+    Route::get('schools/{school}/teacher/profile', MyAssignments::class)->name('teacher.profile');
 });
