@@ -26,6 +26,8 @@ class PhaseThreeManagement extends Component
 
     public array $form = [];
 
+    public ?int $editingId = null;
+
     public function mount(string $screen = 'teachers'): void
     {
         $this->screen = $screen;
@@ -39,10 +41,12 @@ class PhaseThreeManagement extends Component
         Gate::authorize('update', School::findOrFail($school));
         if ($this->screen === 'teachers') {
             $d = $this->validate(['form.employee_code' => ['required', 'max:255', Rule::unique('teachers', 'employee_code')->where('school_id', $school)], 'form.first_name' => 'required', 'form.last_name' => 'nullable', 'form.joining_date' => 'nullable|date', 'form.status' => 'required']);
-            Teacher::create(array_merge($d['form'], ['school_id' => $school]));
+            $record = $this->editingId ? Teacher::forSchool($school)->findOrFail($this->editingId) : new Teacher(['school_id' => $school]);
+            $record->fill($d['form'])->save();
         } elseif ($this->screen === 'staff') {
             $d = $this->validate(['form.employee_code' => ['required', Rule::unique('staff', 'employee_code')->where('school_id', $school)], 'form.name' => 'required', 'form.designation' => 'required', 'form.joining_date' => 'nullable|date', 'form.status' => 'required']);
-            Staff::create(array_merge($d['form'], ['school_id' => $school]));
+            $record = $this->editingId ? Staff::forSchool($school)->findOrFail($this->editingId) : new Staff(['school_id' => $school]);
+            $record->fill($d['form'])->save();
         } elseif ($this->screen === 'class-groups') {
             $d = $this->validate(['form.class_id' => 'required|integer', 'form.group_id' => 'required|integer']);
             app(CreateClassGroup::class)->handle($school, ...array_values($d['form']));
@@ -52,9 +56,24 @@ class PhaseThreeManagement extends Component
         } else {
             $d = $this->validate(['form.teacher_id' => 'required|integer', 'form.academic_year_id' => 'required|integer', 'form.class_id' => 'required|integer', 'form.section_id' => 'required|integer', 'form.subject_assignment_id' => 'required|integer', 'form.group_id' => 'nullable|integer']);
             app(CreateTeacherAssignment::class)->handle(array_merge($d['form'], ['school_id' => $school]));
-        }$this->reset('form');
+        }$this->reset('form', 'editingId');
         $this->form['status'] = 'active';
         session()->flash('status', 'Saved successfully.');
+    }
+
+    public function edit(int $id): void
+    {
+        $school = $this->activeSchoolId();
+        $record = $this->screen === 'teachers' ? Teacher::forSchool($school)->findOrFail($id) : Staff::forSchool($school)->findOrFail($id);
+        $this->editingId = $record->id;
+        $this->form = $record->only($this->screen === 'teachers' ? ['employee_code', 'first_name', 'last_name', 'joining_date', 'status'] : ['employee_code', 'name', 'designation', 'joining_date', 'status']);
+    }
+
+    public function toggleStatus(int $id): void
+    {
+        $school = $this->activeSchoolId();
+        $record = $this->screen === 'teachers' ? Teacher::forSchool($school)->findOrFail($id) : Staff::forSchool($school)->findOrFail($id);
+        $record->update(['status' => $record->status === 'active' ? 'inactive' : 'active']);
     }
 
     public function render()
