@@ -10,4 +10,6 @@ class ClassGroup extends Model
 {
     /** @use HasFactory<ClassGroupFactory> */
     use HasFactory;
+
+    protected $fillable = ['school_id', 'class_id', 'group_id'];
 }

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\School;
 use App\Models\Staff;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,8 +18,6 @@ class StaffFactory extends Factory
      */
     public function definition(): array
     {
-        return [
-            //
-        ];
+        return ['school_id' => School::factory(), 'employee_code' => fake()->unique()->bothify('ST####'), 'name' => fake()->name(), 'designation' => 'Office Staff', 'joining_date' => '2026-01-01', 'status' => 'active'];
     }
 }

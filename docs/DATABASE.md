@@ -37,6 +37,7 @@ erDiagram
 | Examination | `exam_types`, `exams`, `exam_schedules`, `question_banks`, `questions`, `question_options`, `exam_attempts`, `answers`, `marks` |
 | Results | `assessment_structures`, `assessment_components`, `grade_rules`, `result_runs`, `results`, `result_subjects`, `promotions` |
 | Finance | `fee_structures`, `student_fees`, `payments`, `payment_receipts` |
+| Teacher assignment | `teachers`, `staff`, `class_groups`, `subject_assignments`, `teacher_assignments`; all assignments are school and academic-year scoped |
 | Communication | `notices`, `notice_audiences`, `notifications` |
 | Governance | `audit_logs`, `attachments`, future aggregate/report tables |
 
