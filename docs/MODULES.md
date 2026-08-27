@@ -5,7 +5,7 @@
 | Identity | Users, memberships, roles, permissions, policies | School | SSO, MFA, delegated administration |
 | School | Schools, settings, academic years | Identity | Tenant provisioning, regional metadata |
 | Academic | Curriculum, classes, sections, groups, subjects, assignments, timetable | School, Teacher | Multiple curricula, scheduling optimizer |
-| Student | Students, guardians, documents, enrollments | Academic, Identity | Transfers, alumni, admissions workflow |
+| Student | Persistent school-owned students, guardians, student-guardian links, historical enrollments | Academic, Identity | Transfers, alumni, admissions workflow; future central identity linking |
 | Teacher & Staff | Profiles, assignments, staff records | School, Academic | HR and payroll integrations |
 | Attendance | Sessions and student/teacher attendance | Student, Academic | QR, biometric, device adapters |
 | Examination | Exams, schedules, question bank, attempts, answers, marks | Academic, Student | Proctoring, item analytics |

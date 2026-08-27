@@ -43,12 +43,14 @@ erDiagram
 ## Key modelling rules
 
 - `students` contains a persistent school-owned identity; enrollment never overwrites academic history.
+- Academic hierarchy is school → academic year → class → section, with group optional for each enrollment. The current pilot does not couple classes to a national curriculum.
 - `enrollments` must be unique per student, school, and academic year, subject to an explicit transfer/history policy.
 - `marks` retains assessment provenance; published `results` are versioned outputs of a result run, not the only source of truth.
 - `curricula` will be central definitions; `curriculum_versions` will make National Curriculum → version → class/subject → assessment/grade rules explicit, while school adoption records permit local configuration without copying national definitions.
 - `grade_rules` and assessment structures belong to a configurable curriculum/school context with effective dates.
 - Online attempts retain schedule, started/submitted timestamps, server-calculated expiry, state, and idempotency key. Answers retain a question snapshot/version where required for reproducible grading.
 - `audit_logs` records actor, school context, action, target type/id, timestamp, request metadata, and safe before/after summaries. Never log passwords or raw sensitive tokens.
+- Roll is unique within `school_id + academic_year_id + class_id + section_id + group_scope + roll`; `group_scope` is `0` when no group is selected, avoiding MySQL's nullable-unique behaviour.
 
 ## Required integrity and indexes
 
