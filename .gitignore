@@ -1,0 +1,30 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.crt
+
+# Dependencies and build output
+/vendor/
+/node_modules/
+/public/build/
+
+# Laravel runtime files
+/storage/*.key
+/storage/logs/*
+!/storage/logs/.gitignore
+/bootstrap/cache/*
+!/bootstrap/cache/.gitignore
+
+# Local tooling and operating-system files
+.DS_Store
+.idea/
+.vscode/
+
+# Sensitive exports and database dumps
+*.sql
+*.sqlite
+*.sqlite3
+*.dump
