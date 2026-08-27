@@ -15,6 +15,14 @@
 /storage/*.key
 /storage/logs/*
 !/storage/logs/.gitignore
+/storage/framework/cache/*
+!/storage/framework/cache/.gitignore
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore
+/storage/framework/testing/*
+!/storage/framework/testing/.gitignore
+/storage/framework/views/*
+!/storage/framework/views/.gitignore
 /bootstrap/cache/*
 !/bootstrap/cache/.gitignore
 
@@ -28,3 +36,6 @@
 *.sqlite
 *.sqlite3
 *.dump
+
+# Test artefacts
+.phpunit.result.cache

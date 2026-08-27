@@ -40,11 +40,11 @@ tests/{Feature,Unit,Architecture}/
 
 ## Multi-school strategy
 
-The initial model is one MySQL database with `school_id` on tenant-owned records. Central data includes users, permission definitions, curriculum definitions, and platform configuration. Tenant data includes school-specific memberships, academic operations, people, assessments, fees, notices, files, and audit events. Tenant context is resolved from the authenticated membership/request, never trusted from a user-supplied identifier. Repository/query scopes and Laravel Policies must enforce it together. A future tenant-per-database migration is possible only behind these domain boundaries.
+The initial model is one MySQL database with `school_id` on tenant-owned records. Central data includes users, permission definitions, curriculum definitions, and platform configuration. `users` is deliberately capable of becoming a future person/student-identity anchor; no national identifier is implemented. Tenant data includes school-specific memberships, academic operations, school student profiles/enrollments, assessments, fees, notices, files, and audit events. Tenant context is resolved from the authenticated membership/request, never trusted from a user-supplied identifier. Repository/query scopes and Laravel Policies must enforce it together. A future tenant-per-database migration is possible only behind these domain boundaries.
 
 ## Authentication and authorization
 
-Laravel authentication provides credential and session management. Sanctum protects API tokens. Spatie Permission provides role/permission assignment, supplemented by school memberships and Laravel Policies for record-level authorization. A user may have memberships in multiple schools, but each request has exactly one authorized school context. Parents can access only linked children; students only their own records; teachers only assigned academic work.
+Laravel authentication provides credential and session management. Sanctum protects API tokens. Spatie Permission provides the platform role catalogue; an active `school_users` membership binds a school-local role and Laravel Policies enforce record-level authorization. This prevents a global role assignment from granting access across a user's schools. A user may have memberships in multiple schools, but each request has exactly one authorized school context. Parents can access only linked children; students only their own records; teachers only assigned academic work.
 
 ## Data flow
 

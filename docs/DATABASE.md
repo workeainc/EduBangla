@@ -30,7 +30,7 @@ erDiagram
 | --- | --- |
 | Central identity | `users`, Spatie `roles`, `permissions`, role/permission pivots, `school_users` memberships |
 | School | `schools`, `school_settings`, `academic_years` |
-| Academic | `curricula`, `classes`, `sections`, `groups`, `subjects`, `class_subjects`, `teacher_subjects`, `timetables` |
+| Academic | central `curricula` and `curriculum_versions`; future school adoption/override records; `classes`, `sections`, `groups`, `subjects`, `class_subjects`, `teacher_subjects`, `timetables` |
 | People | `students`, `guardians`, `student_guardians`, `teachers`, `staff`, `student_documents` |
 | Enrollment | `enrollments` with student, school, academic year, class, section, optional group, roll, status, and dates |
 | Attendance | `attendance_sessions`, `student_attendance`, `teacher_attendance`; each record has date, optional period/subject, status, reason, recorder |
@@ -45,6 +45,7 @@ erDiagram
 - `students` contains a persistent school-owned identity; enrollment never overwrites academic history.
 - `enrollments` must be unique per student, school, and academic year, subject to an explicit transfer/history policy.
 - `marks` retains assessment provenance; published `results` are versioned outputs of a result run, not the only source of truth.
+- `curricula` will be central definitions; `curriculum_versions` will make National Curriculum → version → class/subject → assessment/grade rules explicit, while school adoption records permit local configuration without copying national definitions.
 - `grade_rules` and assessment structures belong to a configurable curriculum/school context with effective dates.
 - Online attempts retain schedule, started/submitted timestamps, server-calculated expiry, state, and idempotency key. Answers retain a question snapshot/version where required for reproducible grading.
 - `audit_logs` records actor, school context, action, target type/id, timestamp, request metadata, and safe before/after summaries. Never log passwords or raw sensitive tokens.
