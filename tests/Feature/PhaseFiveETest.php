@@ -8,17 +8,20 @@ use App\Domain\Promotion\Actions\ApprovePromotion;
 use App\Domain\Promotion\Actions\DeactivatePromotionRule;
 use App\Domain\Promotion\Actions\UpdatePromotion;
 use App\Domain\Promotion\Actions\UpdatePromotionRule;
+use App\Livewire\Admin\PromotionRules;
 use App\Models\AcademicClass;
 use App\Models\AcademicYear;
 use App\Models\Enrollment;
 use App\Models\Promotion;
 use App\Models\PromotionRule;
 use App\Models\School;
+use App\Models\SchoolUser;
 use App\Models\Section;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class PhaseFiveETest extends TestCase
@@ -106,6 +109,25 @@ class PhaseFiveETest extends TestCase
             $this->assertSame('approved', $p->fresh()->status);
             $this->assertSame($en->id, $p->fresh()->source_enrollment_id);
             $this->assertDatabaseMissing('audit_logs', ['action' => 'promotion.applied', 'auditable_id' => $p->id]);
+        }
+    }
+
+    public function test_livewire_rule_toggle_rejects_foreign_rule_id_without_mutation(): void
+    {
+        $a = School::factory()->create();
+        $b = School::factory()->create();
+        $u = User::factory()->create();
+        SchoolUser::create(['school_id' => $a->id, 'user_id' => $u->id, 'role' => 'school-admin', 'status' => 'active']);
+        $y = AcademicYear::factory()->create(['school_id' => $b->id]);
+        $c1 = AcademicClass::factory()->create(['school_id' => $b->id]);
+        $c2 = AcademicClass::factory()->create(['school_id' => $b->id]);
+        $rule = PromotionRule::create(['school_id' => $b->id, 'academic_year_id' => $y->id, 'source_class_id' => $c1->id, 'target_class_id' => $c2->id, 'active' => true]);
+        $this->actingAs($u);
+        try {
+            Livewire::test(PromotionRules::class, ['school' => $a])->call('toggle', $rule->id);
+            $this->fail('Foreign rule mutation should fail.');
+        } catch (\Throwable $e) {
+            $this->assertDatabaseHas('promotion_rules', ['id' => $rule->id, 'active' => 1]);
         }
     }
 }
