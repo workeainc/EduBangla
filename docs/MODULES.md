@@ -26,3 +26,6 @@ The dedicated admin correction screen is `/schools/{school}/admin/attendance/cor
 Modules communicate through explicit actions, events, and stable contracts. Cross-module reads are authorized and minimized; result calculation never resides in an examination UI component.
 
 Phase 3 UI workflows are limited to tenant School Admin management of teacher/staff profiles, class-group applicability, subject assignments and teacher assignments, plus a teacher's own profile/assignment view. These screens are not attendance or examination functionality.
+### Phase 5A Examination Foundation
+
+Offline examination lifecycle, schedules, question banks/questions/version history, paper composition, manual marks and audited corrections. Online attempts/results remain Phase 5B scope.

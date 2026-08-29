@@ -20,3 +20,4 @@ All permissions are evaluated with an active school membership. A school-level r
 | Staff | Assigned operational data and notices | Assigned tasks only | None unless a specific permission grants it | Minimum necessary access |
 
 Permissions use granular verbs such as `students.view`, `students.manage`, `attendance.record`, `marks.enter`, `results.publish`, `fees.collect`, and `notices.publish`. Policies enforce record ownership even when a role permission is present.
+Phase 5A: school admins manage examinations, schedules, banks, questions, papers and mark corrections. Teachers see only assignment-scoped exams and may enter marks for their own assignment. All actions require active school membership and tenant context.

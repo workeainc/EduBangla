@@ -25,3 +25,5 @@ Audit exam creation, scheduling, start, submission, lock, publication, question 
 Phase 5A policies and actions enforce school, assignment and lifecycle boundaries for exams, schedules, questions and manual marks. Future `/api/v1/exams`, `/schedules`, `/questions`, `/attempts`, `/answers` and `/marks` endpoints must invoke the same policies/actions as Livewire. Online attempt security remains design-only.
 
 Manual marks are accepted only for the schedule's school, academic scope, enrollment population and assigned teacher; locked or published exams reject entry.
+
+Paper mutations additionally reject foreign paper/version IDs, duplicate versions and locked/published exams. Livewire methods re-query every supplied identifier within the active school before invoking domain actions. Correction reasons are mandatory and stored in audit after-metadata.

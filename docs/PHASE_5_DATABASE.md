@@ -48,3 +48,4 @@ Index school + academic year, exam status, schedule date/class/section, teacher 
 An attempt receives immutable `exam_attempt_questions` snapshots at start. Question edits never rewrite an attempt. Exams, schedules, papers, attempts and marks are retained; destructive deletion is not part of Phase 5.
 
 Phase 5A implements the examination foundation tables through migration `2026_08_29_200000_create_examination_foundation_tables`. Online attempt tables remain intentionally unimplemented.
+Question options are tenant-scoped through `school_id` and uniquely keyed per version. Paper totals are recalculated transactionally after add/remove operations; examination lifecycle timestamps protect locked and published records.
