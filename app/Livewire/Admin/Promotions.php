@@ -35,6 +35,31 @@ class Promotions extends Component
 
     public $target_section_id;
 
+    public function updatedStudentId(): void
+    {
+        $this->source_enrollment_id = $this->academic_year_id = $this->source_class_id = $this->source_section_id = null;
+    }
+
+    public function updatedSourceEnrollmentId($id): void
+    {
+        $e = Enrollment::where(['id' => $id, 'school_id' => $this->school->id, 'student_id' => $this->student_id, 'status' => 'active'])->first();
+        if ($e) {
+            $this->academic_year_id = $e->academic_year_id;
+            $this->source_class_id = $e->class_id;
+            $this->source_section_id = $e->section_id;
+        }
+    }
+
+    public function updatedTargetAcademicYearId(): void
+    {
+        $this->target_class_id = $this->target_section_id = null;
+    }
+
+    public function updatedTargetClassId(): void
+    {
+        $this->target_section_id = null;
+    }
+
     public ?Promotion $promotion = null;
 
     public function mount(School $school, ?Promotion $promotion = null)
@@ -81,6 +106,6 @@ class Promotions extends Component
 
     public function render()
     {
-        return view('livewire.admin.promotions', ['promotions' => Promotion::with(['student', 'targetClass', 'targetAcademicYear'])->where('school_id', $this->school->id)->latest()->get(), 'students' => Student::where('school_id', $this->school->id)->where('status', 'active')->get(), 'enrollments' => Enrollment::where('school_id', $this->school->id)->where('status', 'active')->get(), 'years' => AcademicYear::where('school_id', $this->school->id)->get(), 'classes' => AcademicClass::where('school_id', $this->school->id)->get()]);
+        return view('livewire.admin.promotions', ['promotions' => Promotion::with(['student', 'targetClass', 'targetAcademicYear'])->where('school_id', $this->school->id)->latest()->get(), 'students' => Student::where('school_id', $this->school->id)->where('status', 'active')->get(), 'enrollments' => Enrollment::where('school_id', $this->school->id)->where('status', 'active')->when($this->student_id, fn ($q) => $q->where('student_id', $this->student_id))->get(), 'years' => AcademicYear::where('school_id', $this->school->id)->get(), 'classes' => AcademicClass::where('school_id', $this->school->id)->get()]);
     }
 }
