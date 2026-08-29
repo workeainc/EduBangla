@@ -22,4 +22,4 @@ Audit exam creation, scheduling, start, submission, lock, publication, question 
 
 ## API boundary
 
-Future `/api/v1/exams`, `/schedules`, `/questions`, `/attempts`, `/answers` and `/marks` endpoints must invoke the same policies/actions as Livewire. API serialization must not expose another tenant's identifiers or answer evidence.
+Phase 5A policies and actions enforce school, assignment and lifecycle boundaries for exams, schedules, questions and manual marks. Future `/api/v1/exams`, `/schedules`, `/questions`, `/attempts`, `/answers` and `/marks` endpoints must invoke the same policies/actions as Livewire. Online attempt security remains design-only.
