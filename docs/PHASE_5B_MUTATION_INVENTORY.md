@@ -8,5 +8,6 @@
 | StartExamAttempt | create + snapshot | Exam object, school context | tenant/enrollment/paper/time/duplicate constraints |
 | SaveExamAnswer | upsert answer | attempt/question IDs | owner, snapshot, expiry, type validation |
 | SubmitExamAttempt | submit/finalize | attempt | owner, lifecycle, expiry |
+| FinalizeExamAttempt | finalize | attempt | server-side submitted-only transition |
 
 All student question-bank/paper/mark mutations are not applicable: no student-facing write component exists. No result, GPA or Phase 5C mutation is present.

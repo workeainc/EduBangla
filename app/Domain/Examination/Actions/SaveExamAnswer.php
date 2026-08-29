@@ -24,7 +24,14 @@ class SaveExamAnswer
                 if (! $keys->contains($payload['value'] ?? null)) {
                     throw ValidationException::withMessages(['answer' => 'Invalid option.']);
                 }
-            }$row = ExamAnswer::updateOrCreate(['exam_attempt_question_id' => $q->id], ['school_id' => $schoolId, 'exam_attempt_id' => $attempt->id, 'answer_payload' => $payload, 'answered_at' => now()]);
+            } elseif (in_array($q->question_type, ['short_answer', 'descriptive'], true)) {
+                if (! is_string($payload['value'] ?? null) || trim($payload['value']) === '' || mb_strlen($payload['value']) > 10000) {
+                    throw ValidationException::withMessages(['answer' => 'উত্তরটি বৈধ text হতে হবে।']);
+                }
+            } else {
+                throw ValidationException::withMessages(['answer' => 'অজানা প্রশ্নের ধরন।']);
+            }
+            $row = ExamAnswer::updateOrCreate(['exam_attempt_question_id' => $q->id], ['school_id' => $schoolId, 'exam_attempt_id' => $attempt->id, 'answer_payload' => $payload, 'answered_at' => now()]);
             if (auth()->user()) {
                 app(RecordAudit::class)->handle(auth()->user(), $schoolId, 'exam.answer_saved', $row, null, ['attempt_id' => $attempt->id, 'question_id' => $q->id]);
             }

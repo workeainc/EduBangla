@@ -65,10 +65,12 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
     Route::get('schools/{school}/teacher/attendance', AttendanceManagement::class)->name('teacher.attendance')->middleware('teacher');
     Route::get('schools/{school}/teacher/exams', TeacherExams::class)->name('teacher.exams')->middleware('teacher');
     Route::get('schools/{school}/teacher/exams/{exam}/marks', ExamMarks::class)->name('teacher.exams.marks')->middleware('teacher');
-    Route::get('schools/{school}/student/exams', StudentExams::class)->name('student.exams');
-    Route::get('schools/{school}/student/exams/{exam}', StudentExams::class)->name('student.exams.show');
-    Route::get('schools/{school}/student/exams/{exam}/start', StudentExams::class)->name('student.exams.start');
-    Route::get('schools/{school}/student/attempts/{attempt}', StudentAttempt::class)->name('student.attempts.show');
+    Route::middleware('student')->group(function () {
+        Route::get('schools/{school}/student/exams', StudentExams::class)->name('student.exams');
+        Route::get('schools/{school}/student/exams/{exam}', StudentExams::class)->name('student.exams.show');
+        Route::get('schools/{school}/student/exams/{exam}/start', StudentExams::class)->name('student.exams.start');
+        Route::get('schools/{school}/student/attempts/{attempt}', StudentAttempt::class)->name('student.attempts.show');
+    });
     Route::get('schools/{school}/admin/exams/{exam}/marks/corrections', ExamMarkCorrections::class)->name('admin.exams.marks.corrections')->middleware('school.admin');
     Route::get('schools/{school}/admin/exams/{exam}/marks/corrections/history', ExamCorrectionHistory::class)->name('admin.exams.marks.corrections.history')->middleware('school.admin');
     Route::get('schools/{school}/admin/attendance', AttendanceManagement::class)->name('admin.attendance')->middleware('school.admin');

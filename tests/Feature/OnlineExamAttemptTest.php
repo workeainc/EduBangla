@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Domain\Examination\Actions\FinalizeExamAttempt;
 use App\Domain\Examination\Actions\SaveExamAnswer;
 use App\Domain\Examination\Actions\StartExamAttempt;
 use App\Domain\Examination\Actions\SubmitExamAttempt;
@@ -143,5 +144,37 @@ class OnlineExamAttemptTest extends TestCase
         $component = app(AttemptComponent::class);
         $this->expectException(AuthorizationException::class);
         $component->mount($f['school'], $attempt);
+    }
+
+    public function test_only_submitted_attempt_can_be_finalized(): void
+    {
+        $f = $this->fixture();
+        $this->actingAs($f['user']);
+        $attempt = app(StartExamAttempt::class)->handle($f['exam'], $f['school']->id);
+        $this->expectException(ValidationException::class);
+        app(FinalizeExamAttempt::class)->handle($attempt, $f['school']->id);
+        $attempt->update(['status' => 'submitted', 'submitted_at' => now()]);
+        $final = app(FinalizeExamAttempt::class)->handle($attempt->fresh(), $f['school']->id);
+        $this->assertSame('finalized', $final->status);
+        $this->assertDatabaseHas('audit_logs', ['action' => 'exam.attempt_finalized', 'auditable_id' => $final->id]);
+    }
+
+    public function test_short_and_descriptive_answers_require_non_empty_text(): void
+    {
+        $f = $this->fixture();
+        $f['version']->question()->update(['type' => 'short_answer']);
+        $this->actingAs($f['user']);
+        $attempt = app(StartExamAttempt::class)->handle($f['exam'], $f['school']->id);
+        $q = $attempt->questions()->first();
+        try {
+            app(SaveExamAnswer::class)->handle($attempt, $q->id, '', $f['school']->id);
+            $this->fail('Empty short answer accepted.');
+        } catch (ValidationException $e) {
+            $this->assertTrue(true);
+        } app(SaveExamAnswer::class)->handle($attempt, $q->id, 'লিখিত উত্তর', $f['school']->id);
+        $f['version']->question()->update(['type' => 'descriptive']);
+        $attempt->questions()->first()->update(['question_type' => 'descriptive']);
+        $this->expectException(ValidationException::class);
+        app(SaveExamAnswer::class)->handle($attempt, $q->id, ['wrong' => 'shape'], $f['school']->id);
     }
 }

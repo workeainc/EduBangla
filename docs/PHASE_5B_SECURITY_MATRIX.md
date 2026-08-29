@@ -8,6 +8,7 @@
 | Save answer | expired/submitted attempt | reject |
 | Submit | another student's attempt | reject |
 | Snapshot | mutate source question/paper after start | snapshot unchanged |
+| Finalization | submitted -> finalized; other states | only submitted allowed |
 
 Automated coverage is in `tests/Feature/OnlineExamAttemptTest.php`.
 

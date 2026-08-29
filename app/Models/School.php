@@ -18,6 +18,11 @@ class School extends Model
         return $this->hasMany(SchoolUser::class);
     }
 
+    public function students()
+    {
+        return $this->hasMany(Student::class);
+    }
+
     public function hasActiveMember(User $user): bool
     {
         return $this->memberships()->where('user_id', $user->id)->where('status', SchoolUser::STATUS_ACTIVE)->exists();

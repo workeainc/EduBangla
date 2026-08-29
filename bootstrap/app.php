@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EstablishTenantContext;
 use App\Http\Middleware\RequireSchoolAdmin;
+use App\Http\Middleware\RequireStudent;
 use App\Http\Middleware\RequireTeacher;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant.context' => EstablishTenantContext::class,
             'school.admin' => RequireSchoolAdmin::class,
             'teacher' => RequireTeacher::class,
+            'student' => RequireStudent::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
