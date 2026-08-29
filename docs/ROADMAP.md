@@ -2,6 +2,8 @@
 
 Phase 4 (Attendance Foundation, Recording and Basic Reporting) is implemented. Phase 5 remains unstarted.
 
+Phase 5 architecture-only design is complete; implementation is intentionally not started. Result, GPA, promotion and analytics remain later scope.
+
 Phase 4 closure includes daily/monthly/class/student operational reports, controlled finalized-session corrections and correction auditing. National analytics and all Phase 5 modules remain out of scope.
 
 | Phase | Outcome |
