@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Admin\PhaseThreeManagement;
+use App\Livewire\Attendance\Management as AttendanceManagement;
 use App\Livewire\Teacher\MyAssignments;
 use App\Models\School;
 use App\Models\Staff;
@@ -45,4 +46,6 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
     })->middleware('school.admin')->name('admin.staff.profile');
     Route::get('schools/{school}/teacher/assignments', MyAssignments::class)->name('teacher.assignments');
     Route::get('schools/{school}/teacher/profile', MyAssignments::class)->name('teacher.profile');
+    Route::get('schools/{school}/teacher/attendance', AttendanceManagement::class)->name('teacher.attendance');
+    Route::get('schools/{school}/admin/attendance', AttendanceManagement::class)->name('admin.attendance')->middleware('school.admin');
 });
