@@ -6,9 +6,12 @@ use App\Domain\Promotion\Actions\ApplyPromotion;
 use App\Domain\Promotion\Actions\ApprovePromotion;
 use App\Domain\Promotion\Actions\CancelPromotion;
 use App\Domain\Promotion\Actions\EvaluatePromotion;
+use App\Models\AcademicClass;
+use App\Models\AcademicYear;
 use App\Models\Enrollment;
 use App\Models\Promotion;
 use App\Models\School;
+use App\Models\Student;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 
@@ -78,6 +81,6 @@ class Promotions extends Component
 
     public function render()
     {
-        return view('livewire.admin.promotions', ['promotions' => Promotion::with(['student', 'targetClass', 'targetAcademicYear'])->where('school_id', $this->school->id)->latest()->get()]);
+        return view('livewire.admin.promotions', ['promotions' => Promotion::with(['student', 'targetClass', 'targetAcademicYear'])->where('school_id', $this->school->id)->latest()->get(), 'students' => Student::where('school_id', $this->school->id)->where('status', 'active')->get(), 'enrollments' => Enrollment::where('school_id', $this->school->id)->where('status', 'active')->get(), 'years' => AcademicYear::where('school_id', $this->school->id)->get(), 'classes' => AcademicClass::where('school_id', $this->school->id)->get()]);
     }
 }

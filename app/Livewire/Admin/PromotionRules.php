@@ -69,6 +69,6 @@ class PromotionRules extends Component
 
     public function render()
     {
-        return view('livewire.admin.promotion-rules', ['rules' => PromotionRule::where('school_id', $this->school->id)->latest()->get()]);
+        return view('livewire.admin.promotion-rules', ['rules' => PromotionRule::where('school_id', $this->school->id)->latest()->get(), 'years' => AcademicYear::where('school_id', $this->school->id)->get(), 'classes' => AcademicClass::where('school_id', $this->school->id)->get()]);
     }
 }
