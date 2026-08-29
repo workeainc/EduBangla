@@ -6,6 +6,8 @@ Examination foundation, lifecycle actions, schedule foundation, question bank an
 
 The closure sprint adds duplicate/locked paper mutation protection, strict schedule assignment checks, mandatory correction reasons recorded in audit metadata, MCQ/True-False option validation, tenant-scoped option mutation and a read-only version detail screen.
 
+Additional final routes include schedule edit/update binding, bank/question show/edit bindings, question version detail, and read-only mark correction history at `/schools/{school}/admin/exams/{exam}/marks/corrections/history`.
+
 ## Verification
 
 SQLite suite: 34 passed, 77 assertions, 0 failures, 0 skipped. Pint, view cache, route listing and diff check are required final checks. MySQL TCP access, local browser binding and Composer network audit remain environment-dependent and are reported explicitly rather than inferred.
@@ -20,6 +22,8 @@ Code is substantially complete for the implemented Phase 5A foundation. External
 - [PASS] Question bank/question/version CRUD foundation and immutable history
 - [PASS] MCQ/True-False option validation and cross-school rejection
 - [PASS] Manual marks entry and mandatory-reason correction auditing
+- [PASS] Schedule update persistence and bank/question status workflows
+- [PASS] Read-only correction history presentation
 - [PASS] Duplicate, locked and published paper mutation guards
 - [PASS] Phase 5B boundary preserved
 - [BLOCKED] MySQL full-suite verification (environment connectivity)

@@ -24,7 +24,8 @@ class CorrectExamMark
         return DB::transaction(function () use ($mark, $newMarks, $reason) {
             $before = ['marks' => $mark->marks];
             $mark->update(['marks' => $newMarks, 'entered_by' => auth()->id(), 'entered_at' => now()]);
-            app(RecordAudit::class)->handle(auth()->user(), $mark->school_id, 'exam.mark_corrected', $mark, $before, ['marks' => $newMarks, 'reason' => $reason]);
+            $mark->load('schedule.exam', 'schedule.subject');
+            app(RecordAudit::class)->handle(auth()->user(), $mark->school_id, 'exam.mark_corrected', $mark, $before, ['marks' => $newMarks, 'reason' => $reason, 'student_id' => $mark->student_id, 'exam_id' => $mark->schedule->exam_id, 'subject_id' => $mark->schedule->subject_id]);
 
             return $mark->refresh();
         });

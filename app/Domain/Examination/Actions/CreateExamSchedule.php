@@ -33,6 +33,22 @@ class CreateExamSchedule
                 throw ValidationException::withMessages(['schedule' => 'Invalid academic assignment scope.']);
             }
 
+            $scheduleId = $d['_schedule_id'] ?? null;
+            unset($d['_schedule_id']);
+            $duplicate = ExamSchedule::where('school_id', $d['school_id'])->where('exam_id', $d['exam_id'])->where('class_id', $d['class_id'])->where('section_id', $d['section_id'])->where('subject_assignment_id', $d['subject_assignment_id'])->when($scheduleId, fn ($q) => $q->where('id', '!=', $scheduleId))->exists();
+            if ($duplicate) {
+                throw ValidationException::withMessages(['schedule' => 'একই scope-এর schedule ইতোমধ্যে আছে।']);
+            }
+            if ($scheduleId) {
+                $schedule = ExamSchedule::where('school_id', $d['school_id'])->findOrFail($scheduleId);
+                if ($schedule->exam->isLocked()) {
+                    throw ValidationException::withMessages(['schedule' => 'Locked exam schedule পরিবর্তন করা যাবে না।']);
+                }
+                $schedule->update($d);
+
+                return $schedule->refresh();
+            }
+
             return ExamSchedule::create($d);
         });
     }

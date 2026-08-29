@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AttendanceReportController;
 use App\Livewire\Admin\AttendanceCorrections;
+use App\Livewire\Admin\ExamCorrectionHistory;
 use App\Livewire\Admin\ExamManagement;
 use App\Livewire\Admin\ExamMarkCorrections;
 use App\Livewire\Admin\ExamPaperManagement;
@@ -63,11 +64,13 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
     Route::get('schools/{school}/teacher/exams', TeacherExams::class)->name('teacher.exams')->middleware('teacher');
     Route::get('schools/{school}/teacher/exams/{exam}/marks', ExamMarks::class)->name('teacher.exams.marks')->middleware('teacher');
     Route::get('schools/{school}/admin/exams/{exam}/marks/corrections', ExamMarkCorrections::class)->name('admin.exams.marks.corrections')->middleware('school.admin');
+    Route::get('schools/{school}/admin/exams/{exam}/marks/corrections/history', ExamCorrectionHistory::class)->name('admin.exams.marks.corrections.history')->middleware('school.admin');
     Route::get('schools/{school}/admin/attendance', AttendanceManagement::class)->name('admin.attendance')->middleware('school.admin');
     Route::get('schools/{school}/admin/attendance/corrections', AttendanceCorrections::class)->name('admin.attendance.corrections')->middleware('school.admin');
     Route::get('schools/{school}/admin/exams', ExamManagement::class)->name('admin.exams')->middleware('school.admin');
     Route::get('schools/{school}/admin/exams/create', ExamManagement::class)->name('admin.exams.create')->middleware('school.admin');
     Route::get('schools/{school}/admin/exams/{exam}', ExamManagement::class)->name('admin.exams.show')->middleware('school.admin');
+    Route::get('schools/{school}/admin/exams/{exam}/edit', ExamManagement::class)->name('admin.exams.edit')->middleware('school.admin');
     Route::get('schools/{school}/admin/exams/{exam}/schedules', ExamManagement::class)->name('admin.exams.schedules')->middleware('school.admin');
     Route::get('schools/{school}/admin/exams/{exam}/schedules/manage', ExamScheduleManagement::class)->name('admin.exams.schedules.manage')->middleware('school.admin');
     Route::get('schools/{school}/admin/exams/{exam}/schedules/create', ExamScheduleManagement::class)->name('admin.exams.schedules.create')->middleware('school.admin');
@@ -77,8 +80,13 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
     Route::get('schools/{school}/admin/question-banks', QuestionBankManagement::class)->defaults('mode', 'banks')->name('admin.question-banks')->middleware('school.admin');
     Route::get('schools/{school}/admin/questions', QuestionBankManagement::class)->defaults('mode', 'questions')->name('admin.questions')->middleware('school.admin');
     Route::get('schools/{school}/admin/question-banks/create', QuestionBankManagement::class)->defaults('mode', 'banks')->name('admin.question-banks.create')->middleware('school.admin');
+    Route::get('schools/{school}/admin/question-banks/{bank}', QuestionBankManagement::class)->defaults('mode', 'banks')->name('admin.question-banks.show')->middleware('school.admin');
+    Route::get('schools/{school}/admin/question-banks/{bank}/edit', QuestionBankManagement::class)->defaults('mode', 'banks')->name('admin.question-banks.edit')->middleware('school.admin');
     Route::get('schools/{school}/admin/questions/create', QuestionBankManagement::class)->defaults('mode', 'questions')->name('admin.questions.create')->middleware('school.admin');
+    Route::get('schools/{school}/admin/questions/{question}', QuestionBankManagement::class)->defaults('mode', 'questions')->name('admin.questions.show')->middleware('school.admin');
+    Route::get('schools/{school}/admin/questions/{question}/edit', QuestionBankManagement::class)->defaults('mode', 'questions')->name('admin.questions.edit')->middleware('school.admin');
     Route::get('schools/{school}/admin/questions/{question}/versions', QuestionVersions::class)->name('admin.questions.versions')->middleware('school.admin');
+    Route::get('schools/{school}/admin/questions/{question}/versions/{version}', QuestionVersionDetail::class)->name('admin.questions.versions.show')->middleware('school.admin');
     Route::get('schools/{school}/admin/question-versions/{version}', QuestionVersionDetail::class)->name('admin.question-versions.show')->middleware('school.admin');
     Route::get('schools/{school}/admin/attendance/reports/daily', [AttendanceReportController::class, 'daily'])->name('admin.attendance.reports.daily')->middleware('school.admin');
     Route::get('schools/{school}/admin/attendance/reports/monthly', [AttendanceReportController::class, 'monthly'])->name('admin.attendance.reports.monthly')->middleware('school.admin');
