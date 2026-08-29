@@ -41,3 +41,5 @@ Paper mutations additionally reject foreign paper/version IDs, duplicate version
 | Livewire | foreign bank/question/option/schedule IDs | reject | yes |
 
 Teachers have assignment-scoped exam visibility and marks entry only. Question-bank, question, option, paper and correction mutations remain school-admin-only.
+
+The direct component regression suite now covers the teacher marks component's unassigned/foreign schedule and unassigned exam paths, plus admin foreign exam and bank/question/option IDs. Unsupported teacher mutations are rejected at route middleware and are intentionally not exposed.

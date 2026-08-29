@@ -27,6 +27,8 @@ Code is substantially complete for the implemented Phase 5A foundation. External
 - [PASS] Schedule update persistence and bank/question status workflows
 - [PASS] Read-only correction history presentation
 - [PASS] Question option create/edit/delete/reorder/set-correct workflows
+- [PASS] Teacher assignment-scoped exam access and marks rejection paths
+- [PASS] Direct Livewire foreign-ID rejection paths for exposed mutations
 - [PASS] Duplicate, locked and published paper mutation guards
 - [PASS] Phase 5B boundary preserved
 - [BLOCKED] MySQL full-suite verification (environment connectivity)

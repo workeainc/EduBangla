@@ -27,6 +27,8 @@ class ExamMarks extends Component
         $this->exam = $exam;
         Gate::authorize('view', $school);
         abort_unless($exam->school_id === $school->id, 404);
+        $teacher = Teacher::where(['school_id' => $school->id, 'user_id' => auth()->id()])->firstOrFail();
+        abort_unless(ExamSchedule::where(['school_id' => $school->id, 'exam_id' => $exam->id, 'teacher_id' => $teacher->id])->exists(), 403);
     }
 
     public function save(int $scheduleId)

@@ -18,7 +18,7 @@ use App\Models\TeacherAssignment;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Livewire;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 
 class ExaminationTeacherScopeTest extends TestCase
@@ -43,6 +43,23 @@ class ExaminationTeacherScopeTest extends TestCase
         $schedule = ExamSchedule::create(['school_id' => $a->id, 'exam_id' => $exam->id, 'academic_year_id' => $ya->id, 'subject_id' => $sub->id, 'class_id' => $ca->id, 'section_id' => $sa->id, 'subject_assignment_id' => $subjectAssignment->id, 'teacher_assignment_id' => $teacherAssignment->id, 'teacher_id' => $tb->id, 'scheduled_date' => '2026-09-01', 'start_time' => '09:00', 'end_time' => '10:00', 'maximum_marks' => 100, 'duration_minutes' => 60]);
         $this->actingAs($u)->withSession(['active_school_id' => $a->id]);
         $this->expectException(ModelNotFoundException::class);
-        Livewire::actingAs($u)->test(ExamMarks::class, ['school' => $a, 'exam' => $exam])->call('save', $schedule->id);
+        $component = app(ExamMarks::class);
+        $component->school = $a;
+        $component->exam = $exam;
+        $component->save($schedule->id);
+    }
+
+    public function test_teacher_cannot_open_unassigned_exam(): void
+    {
+        $school = School::factory()->create();
+        $user = User::factory()->create();
+        SchoolUser::create(['school_id' => $school->id, 'user_id' => $user->id, 'role' => 'teacher', 'status' => 'active']);
+        Teacher::factory()->create(['school_id' => $school->id, 'user_id' => $user->id]);
+        $year = AcademicYear::factory()->create(['school_id' => $school->id]);
+        $exam = Exam::factory()->create(['school_id' => $school->id, 'academic_year_id' => $year->id, 'exam_type_id' => ExamType::factory()->create(['school_id' => $school->id]), 'created_by' => $user->id]);
+        $this->actingAs($user)->withSession(['active_school_id' => $school->id]);
+        $this->expectException(HttpException::class);
+        $component = app(ExamMarks::class);
+        $component->mount($school, $exam);
     }
 }

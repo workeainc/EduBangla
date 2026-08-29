@@ -6,7 +6,12 @@ use App\Domain\Examination\Actions\CreateQuestionVersion;
 use App\Domain\Examination\Actions\DeleteQuestionOption;
 use App\Domain\Examination\Actions\ReorderQuestionOption;
 use App\Domain\Examination\Actions\UpsertQuestionOption;
+use App\Livewire\Admin\ExamManagement;
+use App\Livewire\Admin\ExamPaperManagement;
 use App\Livewire\Admin\QuestionBankManagement;
+use App\Models\AcademicYear;
+use App\Models\Exam;
+use App\Models\ExamType;
 use App\Models\Question;
 use App\Models\QuestionBank;
 use App\Models\School;
@@ -87,5 +92,33 @@ class ExaminationSecurityMatrixTest extends TestCase
         $this->assertDatabaseHas('question_banks', ['id' => $bank->id, 'status' => 'active']);
         $this->assertDatabaseHas('questions', ['id' => $q->id, 'status' => 'active']);
         $this->assertDatabaseHas('question_options', ['id' => $option->id]);
+    }
+
+    public function test_admin_direct_livewire_foreign_exam_id_is_rejected(): void
+    {
+        $a = School::factory()->create();
+        $b = School::factory()->create();
+        $u = User::factory()->create();
+        $year = AcademicYear::factory()->create(['school_id' => $b->id]);
+        $exam = Exam::factory()->create(['school_id' => $b->id, 'academic_year_id' => $year->id, 'exam_type_id' => ExamType::factory()->create(['school_id' => $b->id]), 'created_by' => $u->id]);
+        $component = app(ExamManagement::class);
+        $component->school = $a;
+        $this->expectException(ModelNotFoundException::class);
+        $component->transition($exam->id, 'scheduled');
+    }
+
+    public function test_direct_paper_mutation_ids_are_rejected_for_wrong_tenant(): void
+    {
+        $a = School::factory()->create();
+        $paper = app(ExamPaperManagement::class);
+        $paper->school = $a;
+        foreach (['remove', 'reorder'] as $method) {
+            try {
+                $method === 'remove' ? $paper->{$method}(999999) : $paper->{$method}(999999, 1);
+                $this->fail('Foreign paper question ID was accepted.');
+            } catch (ModelNotFoundException $e) {
+                $this->assertTrue(true);
+            }
+        }
     }
 }
