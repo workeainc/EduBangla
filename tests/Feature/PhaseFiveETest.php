@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Domain\Promotion\Actions\ApplyPromotion;
 use App\Domain\Promotion\Actions\ApprovePromotion;
+use App\Domain\Promotion\Actions\UpdatePromotion;
 use App\Models\AcademicClass;
 use App\Models\AcademicYear;
 use App\Models\Enrollment;
@@ -40,5 +41,23 @@ class PhaseFiveETest extends TestCase
         } $this->assertSame($before, $p->fresh()->toArray());
         $this->expectException(ValidationException::class);
         app(ApprovePromotion::class)->handle($p, $other->id);
+    }
+
+    public function test_applied_promotion_cannot_be_updated_and_state_is_unchanged(): void
+    {
+        $s = School::factory()->create();
+        $u = User::factory()->create();
+        $st = Student::factory()->create(['school_id' => $s->id]);
+        $y = AcademicYear::factory()->create(['school_id' => $s->id]);
+        $c = AcademicClass::factory()->create(['school_id' => $s->id]);
+        $p = new Promotion(['school_id' => $s->id, 'academic_year_id' => $y->id, 'student_id' => $st->id, 'source_enrollment_id' => 1, 'source_class_id' => $c->id, 'target_academic_year_id' => $y->id, 'target_class_id' => $c->id, 'status' => 'applied']);
+        $before = $p->getAttributes();
+        $this->actingAs($u);
+        try {
+            app(UpdatePromotion::class)->handle($p, ['target_class_id' => $c->id], $s->id);
+            $this->fail('Applied mutation should fail.');
+        } catch (ValidationException $e) {
+            $this->assertSame($before, $p->getAttributes());
+        }
     }
 }
