@@ -5,6 +5,7 @@ namespace App\Domain\Promotion\Actions;
 use App\Domain\Audit\RecordAudit;
 use App\Models\Enrollment;
 use App\Models\Promotion;
+use App\Models\ReportCard;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -22,8 +23,11 @@ class ApplyPromotion
             if (auth()->user()) {
                 app(RecordAudit::class)->handle(auth()->user(), $schoolId, 'promotion.applied', $p);
             }
+            if (! ReportCard::where(['school_id' => $schoolId, 'student_id' => $p->student_id, 'enrollment_id' => $p->source_enrollment_id, 'status' => 'published'])->exists()) {
+                throw ValidationException::withMessages(['promotion' => 'Published report card is required.']);
+            }
 
-return $p->refresh();
+            return $p->refresh();
         });
     }
 }
