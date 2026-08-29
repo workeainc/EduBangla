@@ -10,7 +10,7 @@ class PromotionRule extends Model
 {
     use BelongsToSchool,HasFactory;
 
-    protected $fillable = ['school_id', 'academic_year_id', 'source_class_id', 'target_class_id', 'minimum_overall_status', 'minimum_gpa', 'minimum_passed_subjects', 'failed_subject_tolerance', 'active'];
+    protected $fillable = ['school_id', 'name', 'academic_year_id', 'source_class_id', 'target_class_id', 'minimum_overall_status', 'minimum_gpa', 'minimum_passed_subjects', 'failed_subject_tolerance', 'active'];
 
     protected $casts = ['minimum_gpa' => 'decimal:2', 'active' => 'boolean'];
 

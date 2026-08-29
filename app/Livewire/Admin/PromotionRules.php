@@ -13,6 +13,8 @@ class PromotionRules extends Component
 {
     public School $school;
 
+    public $name = '';
+
     public $academic_year_id;
 
     public $source_class_id;
@@ -35,6 +37,9 @@ class PromotionRules extends Component
         if ($rule) {
             abort_unless($rule->school_id === $school->id, 404);
             $this->rule = $rule;
+            foreach (['academic_year_id', 'source_class_id', 'target_class_id', 'minimum_gpa', 'minimum_passed_subjects', 'failed_subject_tolerance', 'minimum_overall_status'] as $field) {
+                $this->$field = $rule->$field;
+            }
         }
         Gate::authorize('update', $school);
     }
