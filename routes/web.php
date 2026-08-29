@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttendanceReportController;
 use App\Livewire\Admin\AttendanceCorrections;
 use App\Livewire\Admin\ExamManagement;
+use App\Livewire\Admin\ExamMarkCorrections;
 use App\Livewire\Admin\ExamPaperManagement;
 use App\Livewire\Admin\ExamScheduleManagement;
 use App\Livewire\Admin\PhaseThreeManagement;
@@ -60,6 +61,7 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
     Route::get('schools/{school}/teacher/attendance', AttendanceManagement::class)->name('teacher.attendance')->middleware('teacher');
     Route::get('schools/{school}/teacher/exams', TeacherExams::class)->name('teacher.exams')->middleware('teacher');
     Route::get('schools/{school}/teacher/exams/{exam}/marks', ExamMarks::class)->name('teacher.exams.marks')->middleware('teacher');
+    Route::get('schools/{school}/admin/exams/{exam}/marks/corrections', ExamMarkCorrections::class)->name('admin.exams.marks.corrections')->middleware('school.admin');
     Route::get('schools/{school}/admin/attendance', AttendanceManagement::class)->name('admin.attendance')->middleware('school.admin');
     Route::get('schools/{school}/admin/attendance/corrections', AttendanceCorrections::class)->name('admin.attendance.corrections')->middleware('school.admin');
     Route::get('schools/{school}/admin/exams', ExamManagement::class)->name('admin.exams')->middleware('school.admin');
