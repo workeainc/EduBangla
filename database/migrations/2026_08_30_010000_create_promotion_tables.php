@@ -11,8 +11,10 @@ return new class extends Migration
         Schema::create('promotion_rules', function (Blueprint $t) {
             $t->id();
             $t->foreignId('school_id')->constrained()->cascadeOnDelete();
+            $t->foreignId('academic_year_id')->constrained()->restrictOnDelete();
             $t->foreignId('source_class_id')->constrained('classes')->restrictOnDelete();
             $t->foreignId('target_class_id')->constrained('classes')->restrictOnDelete();
+            $t->string('minimum_overall_status', 20)->default('pass');
             $t->decimal('minimum_gpa', 4, 2)->nullable();
             $t->unsignedInteger('minimum_passed_subjects')->default(0);
             $t->unsignedInteger('failed_subject_tolerance')->default(0);

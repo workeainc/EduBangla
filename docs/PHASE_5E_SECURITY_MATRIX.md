@@ -10,3 +10,4 @@
 | Promotions | admin middleware; every action reloads by school_id | invalid lifecycle and foreign IDs rejected |
 
 Required direct-action and Livewire checks cover evaluation, approval, application, cancellation and rule activation; all rejected transitions assert persisted state remains unchanged.
+PromotionRule create/edit/show routes use optional model binding with tenant checks; promotion create/edit/show routes similarly reject foreign bound records.

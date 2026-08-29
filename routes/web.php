@@ -93,6 +93,9 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
     Route::get('schools/{school}/admin/report-cards/{reportCard}', ReportCardDetail::class)->name('admin.report-cards.show')->middleware('school.admin');
     Route::get('schools/{school}/admin/promotions', AdminPromotions::class)->name('admin.promotions')->middleware('school.admin');
     Route::get('schools/{school}/admin/promotion-rules', AdminPromotionRules::class)->name('admin.promotion-rules')->middleware('school.admin');
+    Route::get('schools/{school}/admin/promotion-rules/create', AdminPromotionRules::class)->name('admin.promotion-rules.create')->middleware('school.admin');
+    Route::get('schools/{school}/admin/promotion-rules/{rule}', AdminPromotionRules::class)->name('admin.promotion-rules.show')->middleware('school.admin');
+    Route::get('schools/{school}/admin/promotion-rules/{rule}/edit', AdminPromotionRules::class)->name('admin.promotion-rules.edit')->middleware('school.admin');
     Route::get('schools/{school}/admin/promotions/create', AdminPromotions::class)->name('admin.promotions.create')->middleware('school.admin');
     Route::get('schools/{school}/admin/promotions/{promotion}', AdminPromotions::class)->name('admin.promotions.show')->middleware('school.admin');
     Route::get('schools/{school}/admin/promotions/{promotion}/edit', AdminPromotions::class)->name('admin.promotions.edit')->middleware('school.admin');
