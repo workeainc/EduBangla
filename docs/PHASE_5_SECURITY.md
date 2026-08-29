@@ -27,3 +27,17 @@ Phase 5A policies and actions enforce school, assignment and lifecycle boundarie
 Manual marks are accepted only for the schedule's school, academic scope, enrollment population and assigned teacher; locked or published exams reject entry.
 
 Paper mutations additionally reject foreign paper/version IDs, duplicate versions and locked/published exams. Livewire methods re-query every supplied identifier within the active school before invoking domain actions. Correction reasons are mandatory and stored in audit after-metadata.
+
+## Final closure matrix
+
+| Domain | Attack | Expected | Tested |
+| --- | --- | --- | --- |
+| Exam | foreign school / unassigned teacher | reject | yes |
+| Schedule | foreign teacher, class, section or subject assignment | reject | yes |
+| Paper | foreign question version / locked paper | reject | yes |
+| Question | foreign bank or version | reject | yes |
+| Option | foreign version or option ID | reject | yes |
+| Marks | unassigned schedule or foreign enrollment | reject | yes |
+| Livewire | foreign bank/question/option/schedule IDs | reject | yes |
+
+Teachers have assignment-scoped exam visibility and marks entry only. Question-bank, question, option, paper and correction mutations remain school-admin-only.
