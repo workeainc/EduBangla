@@ -10,6 +10,7 @@ use App\Models\School;
 use App\Models\SchoolUser;
 use App\Models\Section;
 use App\Models\Student;
+use App\Models\Teacher;
 use App\Models\User;
 use App\Policies\PromotionPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -54,5 +55,15 @@ class PhaseFiveEScopeTest extends TestCase
         $en = Enrollment::create(['school_id' => $school->id, 'student_id' => $other->id, 'academic_year_id' => $year->id, 'class_id' => $class->id, 'section_id' => $section->id, 'roll' => 1, 'status' => 'active', 'enrolled_at' => '2026-01-01']);
         $promotion = Promotion::create(['school_id' => $school->id, 'academic_year_id' => $year->id, 'student_id' => $other->id, 'source_enrollment_id' => $en->id, 'source_class_id' => $class->id, 'source_section_id' => $section->id, 'target_academic_year_id' => $year->id, 'target_class_id' => $class->id, 'status' => 'applied']);
         $this->assertFalse((new PromotionPolicy)->view($user, $promotion));
+    }
+
+    public function test_teacher_promotion_route_rejects_non_teacher_and_foreign_school(): void
+    {
+        $school = School::factory()->create();
+        $foreign = School::factory()->create();
+        $user = User::factory()->create();
+        SchoolUser::create(['school_id' => $school->id, 'user_id' => $user->id, 'role' => 'teacher', 'status' => 'active']);
+        Teacher::factory()->create(['school_id' => $school->id, 'user_id' => $user->id, 'status' => 'active']);
+        $this->actingAs($user)->withSession(['active_school_id' => $school->id])->get(route('teacher.promotions', ['school' => $foreign]))->assertForbidden();
     }
 }
