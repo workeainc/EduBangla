@@ -3,24 +3,30 @@
 namespace Tests\Feature;
 
 use App\Domain\Academic\Actions\CreateSubjectAssignment;
+use App\Domain\Attendance\Actions\CorrectAttendance;
 use App\Domain\Attendance\Actions\CreateAttendanceSession;
 use App\Domain\Attendance\Actions\FinalizeAttendance;
 use App\Domain\Attendance\Actions\RecordAttendance;
 use App\Domain\Attendance\AttendanceReport;
 use App\Domain\Attendance\AttendanceStatus;
 use App\Domain\Teacher\Actions\CreateTeacherAssignment;
+use App\Livewire\Admin\AttendanceCorrections;
+use App\Livewire\Attendance\Management;
 use App\Models\AcademicClass;
 use App\Models\AcademicYear;
 use App\Models\Enrollment;
 use App\Models\School;
+use App\Models\SchoolUser;
 use App\Models\Section;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class AttendanceTest extends TestCase
@@ -88,5 +94,61 @@ class AttendanceTest extends TestCase
         $one = app(CreateAttendanceSession::class)->handle($data);
         $this->expectException(QueryException::class);
         app(CreateAttendanceSession::class)->handle($data);
+    }
+
+    public function test_admin_correction_is_audited_after_finalization(): void
+    {
+        $f = $this->fixture();
+        $session = app(CreateAttendanceSession::class)->handle(['school_id' => $f['s']->id, 'academic_year_id' => $f['y']->id, 'class_id' => $f['c']->id, 'section_id' => $f['sec']->id, 'teacher_id' => $f['t']->id, 'teacher_assignment_id' => $f['ta']->id, 'attendance_date' => '2026-08-29', 'created_by' => $f['u']->id]);
+        $row = ['student_id' => $f['enrollments'][0]->student_id, 'enrollment_id' => $f['enrollments'][0]->id, 'status' => 'absent'];
+        app(RecordAttendance::class)->handle($session, [$row], $f['u']->id);
+        app(FinalizeAttendance::class)->handle($session);
+        $this->actingAs($f['u']);
+        SchoolUser::create(['school_id' => $f['s']->id, 'user_id' => $f['u']->id, 'role' => 'school-admin', 'status' => 'active']);
+        session(['active_school_id' => $f['s']->id]);
+        app(CorrectAttendance::class)->handle($session->fresh()->attendances()->first(), 'present', $f['u']->id);
+        $this->assertDatabaseHas('student_attendance', ['status' => 'present']);
+        $this->assertDatabaseHas('audit_logs', ['action' => 'attendance.corrected']);
+    }
+
+    public function test_session_action_rejects_every_cross_school_scope_identifier(): void
+    {
+        $a = $this->fixture();
+        $b = $this->fixture();
+        $base = ['school_id' => $a['s']->id, 'academic_year_id' => $a['y']->id, 'class_id' => $a['c']->id, 'section_id' => $a['sec']->id, 'teacher_id' => $a['t']->id, 'teacher_assignment_id' => $a['ta']->id, 'attendance_date' => '2026-08-30', 'created_by' => $a['u']->id];
+        foreach (['academic_year_id' => $b['y']->id, 'class_id' => $b['c']->id, 'section_id' => $b['sec']->id, 'teacher_id' => $b['t']->id, 'teacher_assignment_id' => $b['ta']->id] as $key => $value) {
+            try {
+                app(CreateAttendanceSession::class)->handle(array_merge($base, [$key => $value]));
+                $this->fail("Cross-school {$key} was accepted.");
+            } catch (ValidationException $e) {
+                $this->assertTrue(true);
+            }
+        }
+    }
+
+    public function test_livewire_mutations_reject_foreign_session_and_correction(): void
+    {
+        $a = $this->fixture();
+        $b = $this->fixture();
+        SchoolUser::create(['school_id' => $a['s']->id, 'user_id' => $a['u']->id, 'role' => 'teacher', 'status' => 'active']);
+        $make = fn ($f) => app(CreateAttendanceSession::class)->handle(['school_id' => $f['s']->id, 'academic_year_id' => $f['y']->id, 'class_id' => $f['c']->id, 'section_id' => $f['sec']->id, 'teacher_id' => $f['t']->id, 'teacher_assignment_id' => $f['ta']->id, 'attendance_date' => '2026-09-01', 'created_by' => $f['u']->id]);
+        $bSession = $make($b);
+        $this->expectException(ModelNotFoundException::class);
+        Livewire::actingAs($a['u'])->test(Management::class, ['school' => $a['s']])->set('assignmentId', $a['ta']->id)->set('sessionId', $bSession->id)->set('statuses', [])->call('save');
+    }
+
+    public function test_livewire_admin_correction_is_tenant_scoped_and_valid_correction_succeeds(): void
+    {
+        $a = $this->fixture();
+        $b = $this->fixture();
+        SchoolUser::create(['school_id' => $a['s']->id, 'user_id' => $a['u']->id, 'role' => 'school-admin', 'status' => 'active']);
+        $session = app(CreateAttendanceSession::class)->handle(['school_id' => $b['s']->id, 'academic_year_id' => $b['y']->id, 'class_id' => $b['c']->id, 'section_id' => $b['sec']->id, 'teacher_id' => $b['t']->id, 'teacher_assignment_id' => $b['ta']->id, 'attendance_date' => '2026-09-02', 'created_by' => $b['u']->id]);
+        $e = $b['enrollments'][0];
+        app(RecordAttendance::class)->handle($session, [['student_id' => $e->student_id, 'enrollment_id' => $e->id, 'status' => 'absent']], $b['u']->id);
+        app(FinalizeAttendance::class)->handle($session);
+        $row = $session->fresh()->attendances()->first();
+        session(['active_school_id' => $a['s']->id]);
+        $this->expectException(ModelNotFoundException::class);
+        Livewire::actingAs($a['u'])->test(AttendanceCorrections::class, ['school' => $a['s']])->call('correct', $row->id, 'present');
     }
 }

@@ -23,4 +23,9 @@ class Student extends Model
     {
         return $this->belongsToMany(Guardian::class, 'student_guardians')->withPivot(['relationship_type', 'is_primary'])->withTimestamps();
     }
+
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
+    }
 }

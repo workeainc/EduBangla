@@ -61,7 +61,8 @@ class Management extends Component
         $this->validate(['assignmentId' => 'required', 'date' => 'required|date']);
         $a = $this->assignment();
         $teacher = $a->teacher;
-        $session = $this->sessionId ? AttendanceSession::findOrFail($this->sessionId) : (new CreateAttendanceSession)->handle(['school_id' => $this->school->id, 'academic_year_id' => $a->academic_year_id, 'class_id' => $a->class_id, 'section_id' => $a->section_id, 'teacher_id' => $teacher->id, 'teacher_assignment_id' => $a->id, 'attendance_date' => $this->date, 'period' => $this->period, 'created_by' => auth()->id()]);
+        $session = $this->sessionId ? AttendanceSession::where('school_id', $this->school->id)->findOrFail($this->sessionId) : (new CreateAttendanceSession)->handle(['school_id' => $this->school->id, 'academic_year_id' => $a->academic_year_id, 'class_id' => $a->class_id, 'section_id' => $a->section_id, 'teacher_id' => $teacher->id, 'teacher_assignment_id' => $a->id, 'attendance_date' => $this->date, 'period' => $this->period, 'created_by' => auth()->id()]);
+        Gate::authorize('update', $session);
         $rows = [];
         foreach ($this->statuses as $studentId => $status) {
             $e = Enrollment::where(['school_id' => $this->school->id, 'student_id' => $studentId, 'academic_year_id' => $a->academic_year_id, 'class_id' => $a->class_id, 'section_id' => $a->section_id])->firstOrFail();

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AttendanceReportController;
+use App\Livewire\Admin\AttendanceCorrections;
 use App\Livewire\Admin\PhaseThreeManagement;
 use App\Livewire\Attendance\Management as AttendanceManagement;
 use App\Livewire\Teacher\MyAssignments;
@@ -13,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/login', fn () => response('Login required', 401))->name('login');
 
 Route::middleware(['auth', 'tenant.context'])->group(function () {
     Route::get('/schools/{school}', function (School $school) {
@@ -46,6 +50,11 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
     })->middleware('school.admin')->name('admin.staff.profile');
     Route::get('schools/{school}/teacher/assignments', MyAssignments::class)->name('teacher.assignments');
     Route::get('schools/{school}/teacher/profile', MyAssignments::class)->name('teacher.profile');
-    Route::get('schools/{school}/teacher/attendance', AttendanceManagement::class)->name('teacher.attendance');
+    Route::get('schools/{school}/teacher/attendance', AttendanceManagement::class)->name('teacher.attendance')->middleware('teacher');
     Route::get('schools/{school}/admin/attendance', AttendanceManagement::class)->name('admin.attendance')->middleware('school.admin');
+    Route::get('schools/{school}/admin/attendance/corrections', AttendanceCorrections::class)->name('admin.attendance.corrections')->middleware('school.admin');
+    Route::get('schools/{school}/admin/attendance/reports/daily', [AttendanceReportController::class, 'daily'])->name('admin.attendance.reports.daily')->middleware('school.admin');
+    Route::get('schools/{school}/admin/attendance/reports/monthly', [AttendanceReportController::class, 'monthly'])->name('admin.attendance.reports.monthly')->middleware('school.admin');
+    Route::get('schools/{school}/admin/attendance/reports/class', [AttendanceReportController::class, 'class'])->name('admin.attendance.reports.class')->middleware('school.admin');
+    Route::get('schools/{school}/admin/students/{student}/attendance', [AttendanceReportController::class, 'student'])->name('admin.students.attendance')->middleware('school.admin');
 });

@@ -10,6 +10,10 @@
 | Attendance | Sessions and student/teacher attendance | Student, Academic | QR, biometric, device adapters |
 
 Phase 4 attendance is implemented as a separate domain. Sessions are DRAFT or FINALIZED; student rows use present, absent, late and excused statuses. Bulk recording is transactional, teacher scope is assignment-based, and finalized sessions are read-only. Percentage formula: `(present + late) / (present + absent + late + excused)`.
+
+Operational reports are available for daily, monthly, class/section and student views. School Admins may correct a finalized status through a transaction; the old/new status is recorded in the audit log. Students with no records render safely with zero percentage.
+
+The dedicated admin correction screen is `/schools/{school}/admin/attendance/corrections`; it is tenant-scoped and exposes only finalized rows and status changes.
 | Examination | Exams, schedules, question bank, attempts, answers, marks | Academic, Student | Proctoring, item analytics |
 | Result | Assessment structures, grade rules, calculations, results, promotion | Examination, Academic | Rule versions, transcript service |
 | Finance | Fee structures, invoices/student fees, payments, receipts | Student, School | Payment gateways, accounting export |

@@ -2,6 +2,8 @@
 
 Attendance teachers operate only on their own assignments; School Admins operate within their active school. Cross-school IDs are rejected server-side.
 
+Only the school-admin membership may correct finalized attendance. Teachers can record and finalize their own assignment sessions, but cannot alter finalized rows.
+
 All permissions are evaluated with an active school membership. A school-level role is restricted to its own `school_id`; Super Admin platform access is explicitly audited and not a shortcut for ordinary school staff.
 
 | Role | View | Create / update | Delete / publish | Limits |
