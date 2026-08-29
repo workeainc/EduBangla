@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Domain\Promotion\Actions\ActivatePromotionRule;
 use App\Domain\Promotion\Actions\ApplyPromotion;
 use App\Domain\Promotion\Actions\ApprovePromotion;
+use App\Domain\Promotion\Actions\CreatePromotionRule;
 use App\Domain\Promotion\Actions\DeactivatePromotionRule;
 use App\Domain\Promotion\Actions\UpdatePromotion;
 use App\Domain\Promotion\Actions\UpdatePromotionRule;
@@ -139,6 +140,39 @@ class PhaseFiveETest extends TestCase
             $this->assertSame('approved', $p->fresh()->status);
             $this->assertDatabaseMissing('audit_logs', ['action' => 'promotion.applied', 'auditable_id' => $p->id]);
         }
+    }
+
+    public function test_create_promotion_rule_rejects_foreign_scope_without_mutation(): void
+    {
+        $a = School::factory()->create();
+        $b = School::factory()->create();
+        $year = AcademicYear::factory()->create(['school_id' => $b->id]);
+        $source = AcademicClass::factory()->create(['school_id' => $b->id]);
+        $target = AcademicClass::factory()->create(['school_id' => $b->id]);
+        try {
+            app(CreatePromotionRule::class)->handle(['academic_year_id' => $year->id, 'source_class_id' => $source->id, 'target_class_id' => $target->id], $a->id);
+            $this->fail('Foreign rule scope must reject.');
+        } catch (ValidationException $e) {
+            $this->assertDatabaseCount('promotion_rules', 0);
+        }
+    }
+
+    public function test_published_report_snapshot_is_not_changed_by_later_grade_rule_update(): void
+    {
+        $s = School::factory()->create();
+        $u = User::factory()->create();
+        $st = Student::factory()->create(['school_id' => $s->id]);
+        $y = AcademicYear::factory()->create(['school_id' => $s->id]);
+        $c = AcademicClass::factory()->create(['school_id' => $s->id]);
+        $section = Section::factory()->create(['school_id' => $s->id, 'class_id' => $c->id]);
+        $en = Enrollment::create(['school_id' => $s->id, 'student_id' => $st->id, 'academic_year_id' => $y->id, 'class_id' => $c->id, 'section_id' => $section->id, 'roll' => 1, 'status' => 'active', 'enrolled_at' => '2026-01-01']);
+        $exam = Exam::factory()->create(['school_id' => $s->id, 'academic_year_id' => $y->id, 'created_by' => $u->id]);
+        $result = Result::create(['school_id' => $s->id, 'exam_id' => $exam->id, 'student_id' => $st->id, 'enrollment_id' => $en->id, 'status' => 'published', 'gpa' => 4, 'overall_status' => 'pass']);
+        $rule = PromotionRule::create(['school_id' => $s->id, 'academic_year_id' => $y->id, 'source_class_id' => $c->id, 'target_class_id' => AcademicClass::factory()->create(['school_id' => $s->id])->id, 'active' => true]);
+        $card = ReportCard::create(['school_id' => $s->id, 'result_id' => $result->id, 'student_id' => $st->id, 'enrollment_id' => $en->id, 'exam_id' => $exam->id, 'status' => 'published', 'gpa' => 4, 'overall_status' => 'pass', 'snapshot' => ['gpa' => 4, 'overall_status' => 'pass', 'letter_grade' => 'A']]);
+        $before = $card->fresh()->toArray();
+        $rule->update(['minimum_gpa' => 3]);
+        $this->assertSame($before, $card->fresh()->toArray());
     }
 
     public function test_livewire_rule_toggle_rejects_foreign_rule_id_without_mutation(): void
