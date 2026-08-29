@@ -7,8 +7,10 @@ use App\Domain\Examination\Actions\DeleteQuestionOption;
 use App\Domain\Examination\Actions\ReorderQuestionOption;
 use App\Domain\Examination\Actions\UpsertQuestionOption;
 use App\Livewire\Admin\ExamManagement;
+use App\Livewire\Admin\ExamMarkCorrections;
 use App\Livewire\Admin\ExamPaperManagement;
 use App\Livewire\Admin\QuestionBankManagement;
+use App\Livewire\Admin\QuestionVersions;
 use App\Models\AcademicYear;
 use App\Models\Exam;
 use App\Models\ExamType;
@@ -92,6 +94,14 @@ class ExaminationSecurityMatrixTest extends TestCase
         $this->assertDatabaseHas('question_banks', ['id' => $bank->id, 'status' => 'active']);
         $this->assertDatabaseHas('questions', ['id' => $q->id, 'status' => 'active']);
         $this->assertDatabaseHas('question_options', ['id' => $option->id]);
+        foreach ([['newVersion', $q->id], ['saveOption', $v->id]] as [$method, $id]) {
+            try {
+                $component->{$method}($id);
+                $this->fail('Foreign question/version ID was accepted.');
+            } catch (ModelNotFoundException|ValidationException $e) {
+                $this->assertTrue(true);
+            }
+        }
     }
 
     public function test_admin_direct_livewire_foreign_exam_id_is_rejected(): void
@@ -120,5 +130,34 @@ class ExaminationSecurityMatrixTest extends TestCase
                 $this->assertTrue(true);
             }
         }
+    }
+
+    public function test_all_exposed_admin_livewire_id_mutations_reject_foreign_ids(): void
+    {
+        $a = School::factory()->create();
+        $b = School::factory()->create();
+        $u = User::factory()->create();
+        $sub = Subject::factory()->create(['school_id' => $b->id]);
+        $bank = QuestionBank::create(['school_id' => $b->id, 'subject_id' => $sub->id, 'name' => 'foreign']);
+        $q = Question::create(['school_id' => $b->id, 'question_bank_id' => $bank->id, 'stable_key' => 'F', 'type' => 'mcq']);
+        $v = app(CreateQuestionVersion::class)->handle($q, ['school_id' => $b->id, 'prompt' => 'x', 'marks' => 1, 'created_by' => $u->id]);
+        $o = app(UpsertQuestionOption::class)->handle($v, ['school_id' => $b->id, 'option_key' => 'A', 'option_text' => 'x']);
+        $exam = Exam::factory()->create(['school_id' => $b->id, 'created_by' => $u->id]);
+        $versionComponent = app(QuestionVersions::class);
+        $versionComponent->school = $a;
+        $versionComponent->question = $q;
+        foreach (['deleteOption', 'markCorrect'] as $method) {
+            try {
+                $versionComponent->{$method}($o->id);
+                $this->fail('Foreign option accepted.');
+            } catch (ModelNotFoundException $e) {
+                $this->assertTrue(true);
+            }
+        }
+        $correction = app(ExamMarkCorrections::class);
+        $correction->school = $a;
+        $correction->exam = $exam;
+        $this->expectException(ModelNotFoundException::class);
+        $correction->correct($o->id, 1, 'tamper');
     }
 }

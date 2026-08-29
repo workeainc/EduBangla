@@ -12,7 +12,7 @@ Additional final routes include schedule edit/update binding, bank/question show
 
 ## Verification
 
-SQLite suite: 34 passed, 77 assertions, 0 failures, 0 skipped. Pint, view cache, route listing and diff check are required final checks. MySQL TCP access, local browser binding and Composer network audit remain environment-dependent and are reported explicitly rather than inferred.
+SQLite suite: 41 passed, 93 assertions, 0 failures, 0 skipped. MySQL suite: 41 passed, 93 assertions, 0 failures, 0 skipped. Pint, view cache, route listing and diff check pass. Browser binding remains environment-dependent and is reported explicitly.
 
 ## Current gate
 
@@ -31,7 +31,7 @@ Code is substantially complete for the implemented Phase 5A foundation. External
 - [PASS] Direct Livewire foreign-ID rejection paths for exposed mutations
 - [PASS] Duplicate, locked and published paper mutation guards
 - [PASS] Phase 5B boundary preserved
-- [BLOCKED] MySQL full-suite verification (environment connectivity)
+- [PASS] MySQL full-suite verification (41 tests, 93 assertions)
 - [BLOCKED] Browser verification (local server binding)
 - [BLOCKED] Composer audit (network/cache availability)
 

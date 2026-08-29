@@ -43,3 +43,17 @@ Paper mutations additionally reject foreign paper/version IDs, duplicate version
 Teachers have assignment-scoped exam visibility and marks entry only. Question-bank, question, option, paper and correction mutations remain school-admin-only.
 
 The direct component regression suite now covers the teacher marks component's unassigned/foreign schedule and unassigned exam paths, plus admin foreign exam and bank/question/option IDs. Unsupported teacher mutations are rejected at route middleware and are intentionally not exposed.
+
+### Mutation inventory
+
+| Component | Mutation methods | Scope/IDs | Result |
+| --- | --- | --- | --- |
+| Admin ExamManagement | save, transition | school, exam, year/type | tenant-scoped |
+| Admin ExamScheduleManagement | save | exam, year, class, section, subject/teacher assignments | server validated |
+| Admin QuestionBankManagement | save/toggle bank, save/toggle question, new version, option CRUD | bank, question, version, option | tenant-scoped |
+| Admin QuestionVersions | new version, option CRUD | question, version, option | tenant-scoped; history immutable |
+| Admin ExamPaperManagement | add, remove, reorder | paper, version, paper-question | tenant/lifecycle protected |
+| Admin ExamMarkCorrections | correct | exam, mark | admin-only; reason required |
+| Teacher ExamMarks | save | exam, schedule, teacher, enrollment/student | assignment-scoped |
+
+Teacher paper/question/option mutation is N/A: no teacher route or component exposes those writes; the admin middleware protects them.
