@@ -19,7 +19,13 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
 
     Route::prefix('schools/{school}/admin')->middleware('school.admin')->group(function () {
         Route::get('/teachers', PhaseThreeManagement::class)->defaults('screen', 'teachers')->name('admin.teachers');
+        Route::get('/teachers/create', PhaseThreeManagement::class)->defaults('screen', 'teachers')->name('admin.teachers.create');
+        Route::get('/teachers/{teacher}', PhaseThreeManagement::class)->defaults('screen', 'teachers')->name('admin.teachers.show');
+        Route::get('/teachers/{teacher}/edit', PhaseThreeManagement::class)->defaults('screen', 'teachers')->name('admin.teachers.edit');
         Route::get('/staff', PhaseThreeManagement::class)->defaults('screen', 'staff')->name('admin.staff');
+        Route::get('/staff/create', PhaseThreeManagement::class)->defaults('screen', 'staff')->name('admin.staff.create');
+        Route::get('/staff/{staff}', PhaseThreeManagement::class)->defaults('screen', 'staff')->name('admin.staff.show');
+        Route::get('/staff/{staff}/edit', PhaseThreeManagement::class)->defaults('screen', 'staff')->name('admin.staff.edit');
         Route::get('/academic/class-groups', PhaseThreeManagement::class)->defaults('screen', 'class-groups')->name('admin.class-groups');
         Route::get('/academic/subject-assignments', PhaseThreeManagement::class)->defaults('screen', 'subject-assignments')->name('admin.subject-assignments');
         Route::get('/academic/teacher-assignments', PhaseThreeManagement::class)->defaults('screen', 'teacher-assignments')->name('admin.teacher-assignments');

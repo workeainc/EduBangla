@@ -28,6 +28,8 @@ class PhaseThreeManagement extends Component
 
     public ?int $editingId = null;
 
+    public array $filters = [];
+
     public function mount(string $screen = 'teachers'): void
     {
         $this->screen = $screen;
@@ -40,11 +42,11 @@ class PhaseThreeManagement extends Component
         abort_unless($school, 403);
         Gate::authorize('update', School::findOrFail($school));
         if ($this->screen === 'teachers') {
-            $d = $this->validate(['form.employee_code' => ['required', 'max:255', Rule::unique('teachers', 'employee_code')->where('school_id', $school)], 'form.first_name' => 'required', 'form.last_name' => 'nullable', 'form.joining_date' => 'nullable|date', 'form.status' => 'required']);
+            $d = $this->validate(['form.employee_code' => ['required', 'max:255', Rule::unique('teachers', 'employee_code')->where('school_id', $school)->ignore($this->editingId)], 'form.first_name' => 'required', 'form.last_name' => 'nullable', 'form.joining_date' => 'nullable|date', 'form.status' => 'required']);
             $record = $this->editingId ? Teacher::forSchool($school)->findOrFail($this->editingId) : new Teacher(['school_id' => $school]);
             $record->fill($d['form'])->save();
         } elseif ($this->screen === 'staff') {
-            $d = $this->validate(['form.employee_code' => ['required', Rule::unique('staff', 'employee_code')->where('school_id', $school)], 'form.name' => 'required', 'form.designation' => 'required', 'form.joining_date' => 'nullable|date', 'form.status' => 'required']);
+            $d = $this->validate(['form.employee_code' => ['required', Rule::unique('staff', 'employee_code')->where('school_id', $school)->ignore($this->editingId)], 'form.name' => 'required', 'form.designation' => 'required', 'form.joining_date' => 'nullable|date', 'form.status' => 'required']);
             $record = $this->editingId ? Staff::forSchool($school)->findOrFail($this->editingId) : new Staff(['school_id' => $school]);
             $record->fill($d['form'])->save();
         } elseif ($this->screen === 'class-groups') {
@@ -81,7 +83,7 @@ class PhaseThreeManagement extends Component
         $s = $this->activeSchoolId();
         $base = ['years' => AcademicYear::forSchool($s)->get(), 'classes' => AcademicClass::forSchool($s)->get(), 'groups' => AcademicGroup::forSchool($s)->get(), 'subjects' => Subject::forSchool($s)->get(), 'teachers' => Teacher::forSchool($s)->get(), 'sections' => Section::forSchool($s)->get(), 'subjectAssignments' => SubjectAssignment::where('school_id', $s)->get()];
         $base['records'] = match ($this->screen) {
-            'teachers' => Teacher::forSchool($s)->get(),'staff' => Staff::forSchool($s)->get(),'class-groups' => ClassGroup::where('school_id', $s)->get(),'subject-assignments' => SubjectAssignment::where('school_id', $s)->get(),'teacher-assignments' => TeacherAssignment::where('school_id', $s)->get(),default => collect()
+            'teachers' => Teacher::forSchool($s)->get(),'staff' => Staff::forSchool($s)->get(),'class-groups' => ClassGroup::with(['academicClass', 'group'])->where('school_id', $s)->get(),'subject-assignments' => SubjectAssignment::with(['academicYear', 'academicClass', 'subject', 'group'])->where('school_id', $s)->when($this->filters['academic_year_id'] ?? null, fn ($q, $v) => $q->where('academic_year_id', $v))->when($this->filters['class_id'] ?? null, fn ($q, $v) => $q->where('class_id', $v))->when($this->filters['subject_id'] ?? null, fn ($q, $v) => $q->where('subject_id', $v))->get(),'teacher-assignments' => TeacherAssignment::with(['teacher', 'academicYear', 'academicClass', 'section', 'subjectAssignment.subject', 'group'])->where('school_id', $s)->when($this->filters['academic_year_id'] ?? null, fn ($q, $v) => $q->where('academic_year_id', $v))->when($this->filters['teacher_id'] ?? null, fn ($q, $v) => $q->where('teacher_id', $v))->when($this->filters['class_id'] ?? null, fn ($q, $v) => $q->where('class_id', $v))->when($this->filters['section_id'] ?? null, fn ($q, $v) => $q->where('section_id', $v))->get(),default => collect()
         };
 
         $base['sections'] = isset($this->form['class_id']) ? Section::forSchool($s)->where('class_id', $this->form['class_id'])->get() : collect();

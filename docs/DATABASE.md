@@ -53,6 +53,7 @@ erDiagram
 - `audit_logs` records actor, school context, action, target type/id, timestamp, request metadata, and safe before/after summaries. Never log passwords or raw sensitive tokens.
 - Roll is unique within `school_id + academic_year_id + class_id + section_id + group_scope + roll`; `group_scope` is `0` when no group is selected, avoiding MySQL's nullable-unique behaviour.
 - Subject assignments are unique within school, academic year, class, subject, and `group_scope`; the explicit short index name is MySQL 8-compatible.
+- Teacher profiles optionally reference `users` for login without duplicating credentials. Staff follows the same identity pattern. Assignment review is read-only and resolves display relationships through foreign keys.
 
 ## Required integrity and indexes
 

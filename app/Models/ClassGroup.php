@@ -12,4 +12,14 @@ class ClassGroup extends Model
     use HasFactory;
 
     protected $fillable = ['school_id', 'class_id', 'group_id'];
+
+    public function academicClass()
+    {
+        return $this->belongsTo(AcademicClass::class, 'class_id');
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(AcademicGroup::class);
+    }
 }

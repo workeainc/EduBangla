@@ -16,3 +16,5 @@
 | Audit | Actor and event trail | All write operations | Retention, compliance exports |
 
 Modules communicate through explicit actions, events, and stable contracts. Cross-module reads are authorized and minimized; result calculation never resides in an examination UI component.
+
+Phase 3 UI workflows are limited to tenant School Admin management of teacher/staff profiles, class-group applicability, subject assignments and teacher assignments, plus a teacher's own profile/assignment view. These screens are not attendance or examination functionality.

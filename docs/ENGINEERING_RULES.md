@@ -14,3 +14,4 @@
 12. Record material architectural choices in `docs/ADR/`; update the relevant ADR or create a new one before changing a frozen decision.
 13. Before each push, run relevant tests, inspect `git diff`/`git status`, and confirm staged files contain no sensitive data.
 14. Run the migration suite against MySQL before a production release; SQLite tests are valuable but do not replace MySQL verification.
+15. Livewire actions must re-query tenant-owned records through an active tenant scope; client-side dropdown filtering is never authorization.
