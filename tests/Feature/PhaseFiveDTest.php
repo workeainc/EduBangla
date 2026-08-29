@@ -4,12 +4,14 @@ namespace Tests\Feature;
 
 use App\Domain\Result\Actions\CalculateResultGrades;
 use App\Domain\Result\Actions\GenerateReportCard;
+use App\Domain\Result\Actions\PublishReportCard;
 use App\Models\AcademicClass;
 use App\Models\AcademicYear;
 use App\Models\Enrollment;
 use App\Models\Exam;
 use App\Models\ExamSchedule;
 use App\Models\GradeRule;
+use App\Models\ReportCard;
 use App\Models\Result;
 use App\Models\ResultItem;
 use App\Models\School;
@@ -76,5 +78,22 @@ class PhaseFiveDTest extends TestCase
         $this->actingAs($u);
         $this->expectException(ValidationException::class);
         app(GenerateReportCard::class)->handle($r, $s->id);
+    }
+
+    public function test_published_report_card_snapshot_cannot_be_mutated_or_regenerated(): void
+    {
+        [$s, $u, $r] = $this->resultData('locked');
+        $r->update(['gpa' => 4, 'overall_status' => 'pass']);
+        $card = ReportCard::create(['school_id' => $s->id, 'result_id' => $r->id, 'student_id' => $r->student_id, 'enrollment_id' => $r->enrollment_id, 'exam_id' => $r->exam_id, 'status' => 'generated', 'gpa' => 4, 'overall_status' => 'pass', 'snapshot' => ['gpa' => 4, 'overall_status' => 'pass']]);
+        $this->actingAs($u);
+        $card = app(PublishReportCard::class)->handle($card, $s->id);
+        $snapshot = $card->fresh()->toArray();
+        try {
+            $card->update(['gpa' => 1]);
+            $this->fail('Published report card mutation should fail.');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('Published report cards are immutable.', $e->getMessage());
+        }
+        $this->assertSame($snapshot, $card->fresh()->toArray());
     }
 }

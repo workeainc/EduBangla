@@ -12,6 +12,7 @@ use App\Livewire\Admin\PhaseThreeManagement;
 use App\Livewire\Admin\QuestionBankManagement;
 use App\Livewire\Admin\QuestionVersionDetail;
 use App\Livewire\Admin\QuestionVersions;
+use App\Livewire\Admin\ReportCardDetail;
 use App\Livewire\Admin\ReportCards as AdminReportCards;
 use App\Livewire\Admin\ResultManagement;
 use App\Livewire\Attendance\Management as AttendanceManagement;
@@ -22,6 +23,7 @@ use App\Livewire\Student\Results as StudentResults;
 use App\Livewire\Teacher\ExamMarks;
 use App\Livewire\Teacher\Exams as TeacherExams;
 use App\Livewire\Teacher\MyAssignments;
+use App\Livewire\Teacher\ReportCards as TeacherReportCards;
 use App\Livewire\Teacher\Results as TeacherResults;
 use App\Models\School;
 use App\Models\Staff;
@@ -72,6 +74,7 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
     Route::get('schools/{school}/teacher/exams', TeacherExams::class)->name('teacher.exams')->middleware('teacher');
     Route::get('schools/{school}/teacher/exams/{exam}/marks', ExamMarks::class)->name('teacher.exams.marks')->middleware('teacher');
     Route::get('schools/{school}/teacher/results', TeacherResults::class)->name('teacher.results')->middleware('teacher');
+    Route::get('schools/{school}/teacher/report-cards', TeacherReportCards::class)->name('teacher.report-cards')->middleware('teacher');
     Route::middleware('student')->group(function () {
         Route::get('schools/{school}/student/exams', StudentExams::class)->name('student.exams');
         Route::get('schools/{school}/student/exams/{exam}', StudentExams::class)->name('student.exams.show');
@@ -83,6 +86,7 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
     Route::get('schools/{school}/admin/results', ResultManagement::class)->name('admin.results')->middleware('school.admin');
     Route::get('schools/{school}/admin/academic/grade-rules', GradeRules::class)->name('admin.grade-rules')->middleware('school.admin');
     Route::get('schools/{school}/admin/report-cards', AdminReportCards::class)->name('admin.report-cards')->middleware('school.admin');
+    Route::get('schools/{school}/admin/report-cards/{reportCard}', ReportCardDetail::class)->name('admin.report-cards.show')->middleware('school.admin');
     Route::get('schools/{school}/admin/exams/{exam}/results', ResultManagement::class)->name('admin.exams.results')->middleware('school.admin');
     Route::get('schools/{school}/admin/exams/{exam}/marks/corrections', ExamMarkCorrections::class)->name('admin.exams.marks.corrections')->middleware('school.admin');
     Route::get('schools/{school}/admin/exams/{exam}/marks/corrections/history', ExamCorrectionHistory::class)->name('admin.exams.marks.corrections.history')->middleware('school.admin');

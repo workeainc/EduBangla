@@ -28,4 +28,13 @@ class ReportCard extends Model
     {
         return $this->belongsTo(Exam::class);
     }
+
+    protected static function booted(): void
+    {
+        static::updating(function (self $card) {
+            if ($card->getOriginal('status') === 'published') {
+                throw new \RuntimeException('Published report cards are immutable.');
+            }
+        });
+    }
 }
