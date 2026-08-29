@@ -1,0 +1,1 @@
+<div class="p-6 space-y-4"><h1 class="text-2xl font-bold">Report Cards</h1>@forelse($cards as $card)<article class="rounded border p-4"><h2>{{$card->exam->name}}</h2><p>GPA: {{$card->gpa}} · Status: {{$card->overall_status}}</p></article>@empty<p>No published report cards.</p>@endforelse</div>

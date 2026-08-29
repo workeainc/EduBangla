@@ -10,7 +10,7 @@ class ResultItem extends Model
 {
     use BelongsToSchool,HasFactory;
 
-    protected $fillable = ['school_id', 'result_id', 'subject_id', 'exam_schedule_id', 'obtained_marks', 'maximum_marks', 'percentage', 'source'];
+    protected $fillable = ['school_id', 'result_id', 'subject_id', 'exam_schedule_id', 'obtained_marks', 'maximum_marks', 'percentage', 'source', 'letter_grade', 'grade_point', 'is_pass', 'grade_rule_id'];
 
     protected $casts = ['percentage' => 'decimal:2'];
 
