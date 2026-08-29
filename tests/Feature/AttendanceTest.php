@@ -1,0 +1,92 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Domain\Academic\Actions\CreateSubjectAssignment;
+use App\Domain\Attendance\Actions\CreateAttendanceSession;
+use App\Domain\Attendance\Actions\FinalizeAttendance;
+use App\Domain\Attendance\Actions\RecordAttendance;
+use App\Domain\Attendance\AttendanceReport;
+use App\Domain\Attendance\AttendanceStatus;
+use App\Domain\Teacher\Actions\CreateTeacherAssignment;
+use App\Models\AcademicClass;
+use App\Models\AcademicYear;
+use App\Models\Enrollment;
+use App\Models\School;
+use App\Models\Section;
+use App\Models\Student;
+use App\Models\Subject;
+use App\Models\Teacher;
+use App\Models\User;
+use Illuminate\Database\QueryException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
+use Tests\TestCase;
+
+class AttendanceTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private function fixture(): array
+    {
+        $s = School::factory()->create();
+        $u = User::factory()->create();
+        $t = Teacher::factory()->create(['school_id' => $s->id, 'user_id' => $u->id]);
+        $y = AcademicYear::factory()->create(['school_id' => $s->id]);
+        $c = AcademicClass::factory()->create(['school_id' => $s->id]);
+        $sec = Section::factory()->create(['school_id' => $s->id, 'class_id' => $c->id]);
+        $sub = Subject::factory()->create(['school_id' => $s->id]);
+        $sa = app(CreateSubjectAssignment::class)->handle(['school_id' => $s->id, 'academic_year_id' => $y->id, 'class_id' => $c->id, 'subject_id' => $sub->id]);
+        $ta = app(CreateTeacherAssignment::class)->handle(['school_id' => $s->id, 'teacher_id' => $t->id, 'academic_year_id' => $y->id, 'class_id' => $c->id, 'section_id' => $sec->id, 'subject_assignment_id' => $sa->id]);
+        $enrollments = [];
+        foreach (range(1, 4) as $i) {
+            $st = Student::factory()->create(['school_id' => $s->id]);
+            $enrollments[] = Enrollment::create(['school_id' => $s->id, 'student_id' => $st->id, 'academic_year_id' => $y->id, 'class_id' => $c->id, 'section_id' => $sec->id, 'group_scope' => 0, 'roll' => $i, 'status' => 'active', 'enrolled_at' => '2026-01-01']);
+        }
+
+        return compact('s', 'u', 't', 'y', 'c', 'sec', 'ta', 'enrollments');
+    }
+
+    public function test_bulk_attendance_is_transactional_and_tenant_scoped(): void
+    {
+        $f = $this->fixture();
+        $other = School::factory()->create();
+        $foreign = Student::factory()->create(['school_id' => $other->id]);
+        $fy = AcademicYear::factory()->create(['school_id' => $other->id]);
+        $fc = AcademicClass::factory()->create(['school_id' => $other->id]);
+        $fs = Section::factory()->create(['school_id' => $other->id, 'class_id' => $fc->id]);
+        $fe = Enrollment::create(['school_id' => $other->id, 'student_id' => $foreign->id, 'academic_year_id' => $fy->id, 'class_id' => $fc->id, 'section_id' => $fs->id, 'group_scope' => 0, 'roll' => 1, 'status' => 'active', 'enrolled_at' => '2026-01-01']);
+        $session = app(CreateAttendanceSession::class)->handle(['school_id' => $f['s']->id, 'academic_year_id' => $f['y']->id, 'class_id' => $f['c']->id, 'section_id' => $f['sec']->id, 'teacher_id' => $f['t']->id, 'teacher_assignment_id' => $f['ta']->id, 'attendance_date' => '2026-08-29', 'created_by' => $f['u']->id]);
+        $rows = [];
+        foreach ($f['enrollments'] as $e) {
+            $rows[] = ['student_id' => $e->student_id, 'enrollment_id' => $e->id, 'status' => AttendanceStatus::PRESENT->value];
+        } $rows[] = ['student_id' => $foreign->id, 'enrollment_id' => $fe->id, 'status' => 'absent'];
+        $this->expectException(ValidationException::class);
+        app(RecordAttendance::class)->handle($session, $rows, $f['u']->id);
+        $this->assertDatabaseCount('student_attendance', 0);
+    }
+
+    public function test_report_and_finalization_lock_session(): void
+    {
+        $f = $this->fixture();
+        $session = app(CreateAttendanceSession::class)->handle(['school_id' => $f['s']->id, 'academic_year_id' => $f['y']->id, 'class_id' => $f['c']->id, 'section_id' => $f['sec']->id, 'teacher_id' => $f['t']->id, 'teacher_assignment_id' => $f['ta']->id, 'attendance_date' => '2026-08-29', 'created_by' => $f['u']->id]);
+        $statuses = ['present', 'absent', 'late', 'excused'];
+        $rows = [];
+        foreach ($f['enrollments'] as $i => $e) {
+            $rows[] = ['student_id' => $e->student_id, 'enrollment_id' => $e->id, 'status' => $statuses[$i]];
+        } app(RecordAttendance::class)->handle($session, $rows, $f['u']->id);
+        $this->assertSame(50.0, AttendanceReport::summarize($session->fresh()->load('attendances'))['percentage']);
+        app(FinalizeAttendance::class)->handle($session);
+        $this->expectException(ValidationException::class);
+        app(RecordAttendance::class)->handle($session->fresh(), [$rows[0]], $f['u']->id);
+    }
+
+    public function test_database_prevents_duplicate_sessions_and_rows(): void
+    {
+        $f = $this->fixture();
+        $data = ['school_id' => $f['s']->id, 'academic_year_id' => $f['y']->id, 'class_id' => $f['c']->id, 'section_id' => $f['sec']->id, 'teacher_id' => $f['t']->id, 'teacher_assignment_id' => $f['ta']->id, 'attendance_date' => '2026-08-29', 'created_by' => $f['u']->id];
+        $one = app(CreateAttendanceSession::class)->handle($data);
+        $this->expectException(QueryException::class);
+        app(CreateAttendanceSession::class)->handle($data);
+    }
+}

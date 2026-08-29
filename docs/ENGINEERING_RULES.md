@@ -1,5 +1,7 @@
 # Engineering Rules
 
+Attendance status values are centralized in `AttendanceStatus`; domain actions own validation and transactions, while Livewire remains an adapter. Finalization is audited and locks normal teacher edits.
+
 1. Inspect Git status/history before significant work; make focused conventional commits and push without force.
 2. Never commit secrets, `.env` files, credentials, raw production data, or sensitive database dumps.
 3. Do not put business logic in views, controllers, or Livewire components. Use domain Actions/Services and explicit contracts.

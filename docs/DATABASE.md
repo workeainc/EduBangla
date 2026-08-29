@@ -2,7 +2,7 @@
 
 ## Ownership and relationships
 
-`schools` is the tenant root. `users` is central identity; `school_users` records a user's school membership and role assignment. All tenant operations carry `school_id` either directly or through an unambiguous tenant-owned parent. Foreign keys and unique indexes must include the tenant where uniqueness is school-local (for example, `school_id, student_code`).
+`schools` is the tenant root. `users` is central identity; `school_users` records a user's school membership and role assignment. All tenant operations carry `school_id` either directly or through an unambiguous tenant-owned parent. Foreign keys and unique indexes must include the tenant where uniqueness is school-local (for example, `school_id, student_code`). Attendance uses `attendance_sessions` and `student_attendance`, with explicit scope and enrollment references for historical provenance. Composite unique constraints prevent duplicate sessions and duplicate student rows; audit logs capture creation and finalization.
 
 ```mermaid
 erDiagram

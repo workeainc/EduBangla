@@ -1,5 +1,7 @@
 # EduBangla Architecture v1.0
 
+Attendance actions and policies extend the frozen Phase 1–3 tenant architecture. Explicit session scope and enrollment references preserve historical meaning after later academic changes.
+
 ## System overview
 
 EduBangla is a modular Laravel application for Bangladesh schools. It begins with a single-school pilot but uses shared-database, row-scoped multi-tenancy from the first release. A school is the tenant boundary. The web application serves school administrators, teachers, students, parents, and staff; a versioned API enables future mobile and external integrations.

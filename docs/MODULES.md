@@ -8,6 +8,8 @@
 | Student | Persistent school-owned students, guardians, student-guardian links, historical enrollments | Academic, Identity | Transfers, alumni, admissions workflow; future central identity linking |
 | Teacher & Staff | Tenant-owned teacher/staff profiles; academic-year-scoped class/group/subject/teacher assignments | School, Academic, Identity | HR and payroll integrations; attendance and examination consume assignments as scope, not teacher role alone |
 | Attendance | Sessions and student/teacher attendance | Student, Academic | QR, biometric, device adapters |
+
+Phase 4 attendance is implemented as a separate domain. Sessions are DRAFT or FINALIZED; student rows use present, absent, late and excused statuses. Bulk recording is transactional, teacher scope is assignment-based, and finalized sessions are read-only. Percentage formula: `(present + late) / (present + absent + late + excused)`.
 | Examination | Exams, schedules, question bank, attempts, answers, marks | Academic, Student | Proctoring, item analytics |
 | Result | Assessment structures, grade rules, calculations, results, promotion | Examination, Academic | Rule versions, transcript service |
 | Finance | Fee structures, invoices/student fees, payments, receipts | Student, School | Payment gateways, accounting export |

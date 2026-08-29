@@ -1,5 +1,7 @@
 # Roadmap
 
+Phase 4 (Attendance Foundation, Recording and Basic Reporting) is implemented. Phase 5 remains unstarted.
+
 | Phase | Outcome |
 | --- | --- |
 | 0 — Architecture | Review and freeze architecture, database blueprint, ADRs, engineering rules, and delivery plan. |

@@ -1,5 +1,7 @@
 # Roles and Permission Matrix
 
+Attendance teachers operate only on their own assignments; School Admins operate within their active school. Cross-school IDs are rejected server-side.
+
 All permissions are evaluated with an active school membership. A school-level role is restricted to its own `school_id`; Super Admin platform access is explicitly audited and not a shortcut for ordinary school staff.
 
 | Role | View | Create / update | Delete / publish | Limits |
