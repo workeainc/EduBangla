@@ -3,6 +3,9 @@
 use App\Livewire\Admin\PhaseThreeManagement;
 use App\Livewire\Teacher\MyAssignments;
 use App\Models\School;
+use App\Models\Staff;
+use App\Models\Teacher;
+use App\Models\TeacherAssignment;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +33,16 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
         Route::get('/academic/subject-assignments', PhaseThreeManagement::class)->defaults('screen', 'subject-assignments')->name('admin.subject-assignments');
         Route::get('/academic/teacher-assignments', PhaseThreeManagement::class)->defaults('screen', 'teacher-assignments')->name('admin.teacher-assignments');
     });
+    Route::get('schools/{school}/admin/teachers/{teacher}/profile', function (School $school, Teacher $teacher) {
+        abort_unless($teacher->school_id === $school->id, 404);
+
+        return view('admin.profile', ['title' => 'Teacher profile', 'person' => $teacher, 'school' => $school, 'assignments' => TeacherAssignment::with(['academicYear', 'academicClass', 'section', 'subjectAssignment.subject'])->where('school_id', $school->id)->where('teacher_id', $teacher->id)->get()]);
+    })->middleware('school.admin')->name('admin.teacher.profile');
+    Route::get('schools/{school}/admin/staff/{staff}/profile', function (School $school, Staff $staff) {
+        abort_unless($staff->school_id === $school->id, 404);
+
+        return view('admin.profile', ['title' => 'Staff profile', 'person' => $staff, 'school' => $school]);
+    })->middleware('school.admin')->name('admin.staff.profile');
     Route::get('schools/{school}/teacher/assignments', MyAssignments::class)->name('teacher.assignments');
     Route::get('schools/{school}/teacher/profile', MyAssignments::class)->name('teacher.profile');
 });
