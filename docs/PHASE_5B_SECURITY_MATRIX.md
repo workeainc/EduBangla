@@ -10,3 +10,5 @@
 | Snapshot | mutate source question/paper after start | snapshot unchanged |
 
 Automated coverage is in `tests/Feature/OnlineExamAttemptTest.php`.
+
+The suite covers valid start/answer/submit, duplicate and time-window rejection, immutable prompt snapshots, submitted/expired lifecycle rejection, student ownership, and direct Livewire foreign-attempt rejection.

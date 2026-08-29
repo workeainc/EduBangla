@@ -17,14 +17,13 @@ class SubmitExamAttempt
             if ($attempt->school_id !== $schoolId || $attempt->student_id !== $student->id || ! $attempt->isActive()) {
                 throw ValidationException::withMessages(['attempt' => 'Attempt access denied or already submitted.']);
             }if (now()->gte($attempt->expires_at)) {
-                $attempt->update(['status' => 'finalized', 'finalized_at' => now()]);
                 throw ValidationException::withMessages(['attempt' => 'Attempt expired.']);
             }$attempt->update(['status' => 'submitted', 'submitted_at' => now(), 'finalized_at' => now()]);
             if (auth()->user()) {
                 app(RecordAudit::class)->handle(auth()->user(), $schoolId, 'exam.attempt_submitted', $attempt, null, ['submitted_at' => $attempt->submitted_at]);
             }
 
-return $attempt->refresh();
+            return $attempt->refresh();
         });
     }
 }

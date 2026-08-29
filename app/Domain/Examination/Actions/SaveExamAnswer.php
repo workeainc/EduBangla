@@ -29,7 +29,7 @@ class SaveExamAnswer
                 app(RecordAudit::class)->handle(auth()->user(), $schoolId, 'exam.answer_saved', $row, null, ['attempt_id' => $attempt->id, 'question_id' => $q->id]);
             }
 
-return $row;
+            return $row;
         });
     }
 
@@ -38,7 +38,6 @@ return $row;
         if ($a->school_id !== $schoolId || $a->student_id !== $studentId || ! $a->isActive()) {
             throw ValidationException::withMessages(['attempt' => 'Attempt access denied.']);
         }if (now()->gte($a->expires_at)) {
-            $a->update(['status' => 'finalized', 'finalized_at' => now()]);
             throw ValidationException::withMessages(['attempt' => 'Attempt expired.']);
         }
     }

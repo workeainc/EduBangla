@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Domain\Examination\Actions\SaveExamAnswer;
 use App\Domain\Examination\Actions\StartExamAttempt;
 use App\Domain\Examination\Actions\SubmitExamAttempt;
+use App\Livewire\Student\Attempt as AttemptComponent;
 use App\Models\AcademicClass;
 use App\Models\AcademicYear;
 use App\Models\Enrollment;
@@ -25,6 +26,7 @@ use App\Models\SubjectAssignment;
 use App\Models\Teacher;
 use App\Models\TeacherAssignment;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
@@ -105,5 +107,41 @@ class OnlineExamAttemptTest extends TestCase
             $this->assertSame(0, $attempt->answers()->count());
             $this->assertSame('in_progress', $attempt->fresh()->status);
         }
+    }
+
+    public function test_other_student_cannot_answer_or_submit_owned_attempt(): void
+    {
+        $f = $this->fixture();
+        $this->actingAs($f['user']);
+        $attempt = app(StartExamAttempt::class)->handle($f['exam'], $f['school']->id);
+        $question = $attempt->questions()->first();
+        $otherUser = User::factory()->create();
+        Student::factory()->create(['school_id' => $f['school']->id, 'user_id' => $otherUser->id]);
+        auth()->login($otherUser);
+        $this->expectException(ValidationException::class);
+        app(SaveExamAnswer::class)->handle($attempt, $question->id, 'A', $f['school']->id);
+    }
+
+    public function test_expired_submission_is_rejected_without_state_change(): void
+    {
+        $f = $this->fixture();
+        $this->actingAs($f['user']);
+        $attempt = app(StartExamAttempt::class)->handle($f['exam'], $f['school']->id);
+        $attempt->update(['expires_at' => now()->subSecond()]);
+        $this->expectException(ValidationException::class);
+        app(SubmitExamAttempt::class)->handle($attempt->fresh(), $f['school']->id);
+        $this->assertSame('in_progress', $attempt->fresh()->status);
+    }
+
+    public function test_livewire_attempt_component_rejects_foreign_attempt(): void
+    {
+        $f = $this->fixture();
+        $this->actingAs($f['user']);
+        $attempt = app(StartExamAttempt::class)->handle($f['exam'], $f['school']->id);
+        $other = User::factory()->create();
+        auth()->login($other);
+        $component = app(AttemptComponent::class);
+        $this->expectException(AuthorizationException::class);
+        $component->mount($f['school'], $attempt);
     }
 }
