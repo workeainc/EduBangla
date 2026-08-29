@@ -49,6 +49,11 @@ class ExamSchedule extends Model
         return $this->hasOne(ExamPaper::class, 'exam_schedule_id');
     }
 
+    public function marks()
+    {
+        return $this->hasMany(ExamMark::class, 'exam_schedule_id');
+    }
+
     public function subjectAssignment()
     {
         return $this->belongsTo(SubjectAssignment::class);

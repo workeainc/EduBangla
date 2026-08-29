@@ -17,3 +17,5 @@ Phase 4 closure includes daily/monthly/class/student operational reports, contro
 | 6 — Government integration readiness | Standards mapping, consent/governance controls, security assessment, documented integration contracts. |
 
 Phase 5A examination foundation is frozen for handoff. Phase 5B (online attempt, timer, answers and results) must begin only after explicit approval.
+
+Phase 5C begins the Result foundation (manual-mark aggregation and publication lifecycle). GPA, grade, promotion and report cards remain future scope.
