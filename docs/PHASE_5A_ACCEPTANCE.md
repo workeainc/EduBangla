@@ -12,7 +12,7 @@ Additional final routes include schedule edit/update binding, bank/question show
 
 ## Verification
 
-SQLite suite: 41 passed, 93 assertions, 0 failures, 0 skipped. MySQL suite: 41 passed, 93 assertions, 0 failures, 0 skipped. Pint, view cache, route listing and diff check pass. Browser binding remains environment-dependent and is reported explicitly.
+SQLite suite: 42 passed, 104 assertions, 0 failures, 0 skipped. MySQL suite baseline remains 42 passed, 99 assertions; the latest scope-only test additions are driver-independent. Pint, view cache, route listing and diff check pass. Browser binding remains environment-dependent and is reported explicitly.
 
 Security matrix: `docs/PHASE_5A_SECURITY_MATRIX.md`. Final closure tests increase the suite to 42 tests and 99 assertions.
 

@@ -86,6 +86,8 @@ class ExaminationTeacherScopeTest extends TestCase
         $other = Student::factory()->create(['school_id' => $s->id]);
         $enrollment = Enrollment::create(['school_id' => $s->id, 'student_id' => $student->id, 'academic_year_id' => $year->id, 'class_id' => $class->id, 'section_id' => $section->id, 'roll' => 1, 'status' => 'active', 'enrolled_at' => '2026-01-01']);
         $this->actingAs($u);
+        $valid = ['school_id' => $s->id, 'exam_schedule_id' => $schedule->id, 'student_id' => $student->id, 'enrollment_id' => $enrollment->id, 'teacher_id' => $teacher->id, 'entered_by' => $u->id, 'marks' => 50, 'maximum_marks' => 100];
+        app(EnterExamMark::class)->handle($valid);
         $before = ExamMark::count();
         foreach ([['student_id' => $other->id, 'enrollment_id' => $enrollment->id], ['student_id' => $student->id, 'enrollment_id' => $enrollment->id + 99999]] as $payload) {
             try {
@@ -94,7 +96,26 @@ class ExaminationTeacherScopeTest extends TestCase
             } catch (ValidationException|ModelNotFoundException $e) {
                 $this->assertTrue(true);
             }
-        } $this->assertSame($before, ExamMark::count());
+        }
+        $year2 = AcademicYear::factory()->create(['school_id' => $s->id, 'name' => '2027']);
+        $class2 = AcademicClass::factory()->create(['school_id' => $s->id]);
+        $section2 = Section::factory()->create(['school_id' => $s->id, 'class_id' => $class2->id]);
+        $subject2 = Subject::factory()->create(['school_id' => $s->id, 'name' => 'Science', 'code' => 'SCI']);
+        $sa2 = SubjectAssignment::create(['school_id' => $s->id, 'academic_year_id' => $year2->id, 'class_id' => $class2->id, 'subject_id' => $subject2->id]);
+        $ta2 = TeacherAssignment::create(['school_id' => $s->id, 'teacher_id' => $teacher->id, 'academic_year_id' => $year2->id, 'class_id' => $class2->id, 'section_id' => $section2->id, 'subject_assignment_id' => $sa2->id]);
+        $mismatches = ['academic_year_id' => $year2->id, 'class_id' => $class2->id, 'section_id' => $section2->id, 'subject_assignment_id' => $sa2->id, 'teacher_assignment_id' => $ta2->id];
+        foreach ($mismatches as $field => $mismatch) {
+            $original = $schedule->{$field};
+            $schedule->update([$field => $mismatch]);
+            try {
+                app(EnterExamMark::class)->handle($valid);
+                $this->fail("Mismatched {$field} accepted.");
+            } catch (ValidationException|ModelNotFoundException $e) {
+                $this->assertTrue(true);
+            }
+            $schedule->update([$field => $original]);
+        }
+        $this->assertSame($before, ExamMark::count());
         $exam->update(['status' => 'locked']);
         $this->expectException(ValidationException::class);
         app(EnterExamMark::class)->handle(['school_id' => $s->id, 'exam_schedule_id' => $schedule->id, 'student_id' => $student->id, 'enrollment_id' => $enrollment->id, 'teacher_id' => $teacher->id, 'entered_by' => $u->id, 'marks' => 50, 'maximum_marks' => 100]);
