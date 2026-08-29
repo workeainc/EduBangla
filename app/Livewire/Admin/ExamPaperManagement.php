@@ -3,6 +3,8 @@
 namespace App\Livewire\Admin;
 
 use App\Domain\Examination\Actions\AddPaperQuestion;
+use App\Domain\Examination\Actions\RemovePaperQuestion;
+use App\Domain\Examination\Actions\ReorderPaperQuestion;
 use App\Models\Exam;
 use App\Models\ExamPaper;
 use App\Models\ExamSchedule;
@@ -41,6 +43,18 @@ class ExamPaperManagement extends Component
         app(AddPaperQuestion::class)->handle($this->form + ['school_id' => $this->school->id, 'exam_paper_id' => $p->id]);
         $p->update(['total_marks' => $p->questions()->sum('marks')]);
         $this->message = 'Question paper-এ যোগ হয়েছে।';
+    }
+
+    public function remove(int $id): void
+    {
+        app(RemovePaperQuestion::class)->handle($id, $this->school->id);
+        $this->message = 'Question removed.';
+    }
+
+    public function reorder(int $id, int $ordinal): void
+    {
+        app(ReorderPaperQuestion::class)->handle($id, $ordinal, $this->school->id);
+        $this->message = 'Order updated.';
     }
 
     public function render()
