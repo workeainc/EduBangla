@@ -36,3 +36,4 @@ Student: `/schools/{school}/student/exams`, `/{schedule}`, `/{schedule}/attempt`
 Phase 5A implements the examination foundation, question bank versioning, lifecycle foundation, manual marks foundation and Admin/Teacher listing interfaces. Online attempts, answer submission and Result remain unimplemented.
 
 Implemented routes include Admin exam/question-bank/question screens and Teacher exam/marks screens. Schedule and paper models/actions are available as foundation; dedicated online attempt routes remain unimplemented.
+Schedule management, paper management and question version history screens are available through the corresponding Admin routes.
