@@ -19,7 +19,7 @@ class CancelPromotion
                 app(RecordAudit::class)->handle(auth()->user(), $schoolId, 'promotion.cancelled', $p);
             }
 
-return $p->refresh();
+            return $p->refresh();
         });
     }
 }

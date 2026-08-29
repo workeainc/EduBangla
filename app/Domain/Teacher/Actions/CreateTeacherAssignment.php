@@ -37,7 +37,13 @@ class CreateTeacherAssignment
                 if ($g->school_id !== $school || ! ClassGroup::where(['school_id' => $school, 'class_id' => $class->id, 'group_id' => $g->id])->exists() || $subject->group_scope !== $g->id) {
                     throw ValidationException::withMessages(['group_id' => 'Invalid group assignment.']);
                 }
-            }$data['group_scope'] = $data['group_id'] ?? 0;
+            } elseif ((int) $subject->group_scope !== 0) {
+                throw ValidationException::withMessages(['group_id' => 'A group is required for this subject assignment.']);
+            }
+            if ($teacher->status !== 'active') {
+                throw ValidationException::withMessages(['teacher_id' => 'Teacher is not active.']);
+            }
+            $data['group_scope'] = $data['group_id'] ?? 0;
 
             return TeacherAssignment::create($data);
         });

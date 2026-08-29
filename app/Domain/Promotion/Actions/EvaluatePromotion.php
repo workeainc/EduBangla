@@ -33,7 +33,7 @@ class EvaluatePromotion
                 app(RecordAudit::class)->handle(auth()->user(), $schoolId, 'promotion.evaluated', $p);
             }
 
-return $p->refresh();
+            return $p->refresh();
         });
     }
 }

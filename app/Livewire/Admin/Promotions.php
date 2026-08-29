@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Domain\Promotion\Actions\ApplyPromotion;
 use App\Domain\Promotion\Actions\ApprovePromotion;
 use App\Domain\Promotion\Actions\CancelPromotion;
+use App\Domain\Promotion\Actions\CreatePromotion;
 use App\Domain\Promotion\Actions\EvaluatePromotion;
 use App\Domain\Promotion\Actions\UpdatePromotion;
 use App\Models\AcademicClass;
@@ -81,14 +82,12 @@ class Promotions extends Component
 
     public function save(): void
     {
-        $this->validate(['student_id' => 'required|exists:students,id', 'source_enrollment_id' => 'required|exists:enrollments,id', 'academic_year_id' => 'required|exists:academic_years,id', 'source_class_id' => 'required|exists:classes,id', 'target_academic_year_id' => 'required|exists:academic_years,id', 'target_class_id' => 'required|exists:classes,id']);
-        $valid = Enrollment::where(['id' => $this->source_enrollment_id, 'school_id' => $this->school->id, 'student_id' => $this->student_id, 'academic_year_id' => $this->academic_year_id, 'class_id' => $this->source_class_id, 'section_id' => $this->source_section_id])->exists();
-        abort_unless($valid, 422);
+        $this->validate(['student_id' => 'required|integer', 'source_enrollment_id' => 'required|integer', 'academic_year_id' => 'required|integer', 'source_class_id' => 'required|integer', 'source_section_id' => 'required|integer', 'target_academic_year_id' => 'required|integer', 'target_class_id' => 'required|integer', 'target_section_id' => 'nullable|integer']);
         $data = ['student_id' => $this->student_id, 'source_enrollment_id' => $this->source_enrollment_id, 'academic_year_id' => $this->academic_year_id, 'source_class_id' => $this->source_class_id, 'source_section_id' => $this->source_section_id, 'target_academic_year_id' => $this->target_academic_year_id, 'target_class_id' => $this->target_class_id, 'target_section_id' => $this->target_section_id];
         if ($this->promotion) {
             app(UpdatePromotion::class)->handle($this->promotion, $data, $this->school->id);
         } else {
-            Promotion::create($data + ['school_id' => $this->school->id, 'status' => 'draft']);
+            app(CreatePromotion::class)->handle($data, $this->school->id);
         }
     }
 

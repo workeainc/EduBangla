@@ -14,12 +14,14 @@ class ApprovePromotion
         return DB::transaction(function () use ($p, $schoolId) {
             if ($p->school_id !== $schoolId || $p->status !== 'eligible' || $p->decision !== 'eligible') {
                 throw ValidationException::withMessages(['promotion' => 'Only eligible promotions can be approved.']);
-            }$p->update(['status' => 'approved', 'decided_by' => auth()->id(), 'decided_at' => now()]);
+            }
+            app(CreatePromotion::class)->validateScope($p->getAttributes(), $schoolId);
+            $p->update(['status' => 'approved', 'decided_by' => auth()->id(), 'decided_at' => now()]);
             if (auth()->user()) {
                 app(RecordAudit::class)->handle(auth()->user(), $schoolId, 'promotion.approved', $p);
             }
 
-return $p->refresh();
+            return $p->refresh();
         });
     }
 }

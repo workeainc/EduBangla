@@ -55,7 +55,9 @@ class PromotionRules extends Component
             }
         } $data = ['school_id' => $this->school->id, 'academic_year_id' => $this->academic_year_id, 'source_class_id' => $this->source_class_id, 'target_class_id' => $this->target_class_id, 'minimum_overall_status' => $this->minimum_overall_status, 'minimum_gpa' => $this->minimum_gpa, 'minimum_passed_subjects' => $this->minimum_passed_subjects, 'failed_subject_tolerance' => $this->failed_subject_tolerance, 'active' => true];
         if ($this->rule) {
-            $this->rule->update($data);
+            // Never trust a hydrated model identity from the browser; reload it in-tenant.
+            $rule = PromotionRule::where('school_id', $this->school->id)->findOrFail($this->rule->id);
+            $rule->update($data);
         } else {
             PromotionRule::create($data);
         }

@@ -20,6 +20,6 @@ class CreatePromotionRule
             throw ValidationException::withMessages(['target_class_id' => 'Target class must differ.']);
         }
 
-return DB::transaction(fn () => PromotionRule::create($data + ['school_id' => $schoolId, 'active' => true]));
+        return DB::transaction(fn () => PromotionRule::create($data + ['school_id' => $schoolId, 'active' => true]));
     }
 }

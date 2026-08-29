@@ -16,10 +16,11 @@ class ApplyPromotion
 {
     public function handle(Promotion $p, int $schoolId, ?\Closure $afterEnrollment = null): Promotion
     {
-        return DB::transaction(function () use ($p, $schoolId) {
+        return DB::transaction(function () use ($p, $schoolId, $afterEnrollment) {
             if ($p->school_id !== $schoolId || $p->status !== 'approved') {
                 throw ValidationException::withMessages(['promotion' => 'Only approved promotions can be applied.']);
             }
+            app(CreatePromotion::class)->validateScope($p->getAttributes(), $schoolId);
             if (! ReportCard::where(['school_id' => $schoolId, 'student_id' => $p->student_id, 'enrollment_id' => $p->source_enrollment_id, 'status' => 'published'])->exists()) {
                 throw ValidationException::withMessages(['promotion' => 'Published report card is required.']);
             }

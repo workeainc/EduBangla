@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Domain\Promotion\Actions\ActivatePromotionRule;
 use App\Domain\Promotion\Actions\ApplyPromotion;
 use App\Domain\Promotion\Actions\ApprovePromotion;
+use App\Domain\Promotion\Actions\CreatePromotion;
 use App\Domain\Promotion\Actions\CreatePromotionRule;
 use App\Domain\Promotion\Actions\DeactivatePromotionRule;
 use App\Domain\Promotion\Actions\UpdatePromotion;
@@ -211,5 +212,25 @@ class PhaseFiveETest extends TestCase
         } catch (\Throwable $e) {
             $this->assertDatabaseHas('promotion_rules', ['id' => $rule->id, 'active' => 1]);
         }
+    }
+
+    public function test_direct_promotion_actions_reject_foreign_identifiers_without_mutation(): void
+    {
+        $a = School::factory()->create();
+        $b = School::factory()->create();
+        $student = Student::factory()->create(['school_id' => $a->id]);
+        $foreignStudent = Student::factory()->create(['school_id' => $b->id]);
+        $year = AcademicYear::factory()->create(['school_id' => $a->id]);
+        $foreignYear = AcademicYear::factory()->create(['school_id' => $b->id]);
+        $class = AcademicClass::factory()->create(['school_id' => $a->id]);
+        $foreignClass = AcademicClass::factory()->create(['school_id' => $b->id]);
+        $section = Section::factory()->create(['school_id' => $a->id, 'class_id' => $class->id]);
+        $foreignSection = Section::factory()->create(['school_id' => $b->id, 'class_id' => $foreignClass->id]);
+        $enrollment = Enrollment::create(['school_id' => $a->id, 'student_id' => $student->id, 'academic_year_id' => $year->id, 'class_id' => $class->id, 'section_id' => $section->id, 'roll' => 1, 'status' => 'active', 'enrolled_at' => '2026-01-01']);
+        $foreignEnrollment = Enrollment::create(['school_id' => $b->id, 'student_id' => $foreignStudent->id, 'academic_year_id' => $foreignYear->id, 'class_id' => $foreignClass->id, 'section_id' => $foreignSection->id, 'roll' => 1, 'status' => 'active', 'enrolled_at' => '2026-01-01']);
+        $promotion = Promotion::create(['school_id' => $a->id, 'academic_year_id' => $year->id, 'student_id' => $student->id, 'source_enrollment_id' => $enrollment->id, 'source_class_id' => $class->id, 'source_section_id' => $section->id, 'target_academic_year_id' => $year->id, 'target_class_id' => $class->id, 'status' => 'draft']);
+
+        $this->expectException(ValidationException::class);
+        app(CreatePromotion::class)->handle(['student_id' => $foreignStudent->id, 'source_enrollment_id' => $foreignEnrollment->id, 'academic_year_id' => $foreignYear->id, 'source_class_id' => $foreignClass->id, 'source_section_id' => $foreignSection->id, 'target_academic_year_id' => $year->id, 'target_class_id' => $class->id], $a->id);
     }
 }
