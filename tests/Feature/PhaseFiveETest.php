@@ -92,6 +92,21 @@ class PhaseFiveETest extends TestCase
         }
     }
 
+    public function test_promotion_rule_lifecycle_actions_mutate_only_same_tenant_rule(): void
+    {
+        $s = School::factory()->create();
+        $year = AcademicYear::factory()->create(['school_id' => $s->id]);
+        $source = AcademicClass::factory()->create(['school_id' => $s->id]);
+        $target = AcademicClass::factory()->create(['school_id' => $s->id]);
+        $rule = PromotionRule::create(['school_id' => $s->id, 'academic_year_id' => $year->id, 'source_class_id' => $source->id, 'target_class_id' => $target->id, 'active' => false]);
+        $created = app(CreatePromotionRule::class)->handle(['academic_year_id' => $year->id, 'source_class_id' => $source->id, 'target_class_id' => $target->id], $s->id);
+        $this->assertSame($s->id, $created->school_id);
+        $this->assertTrue(app(ActivatePromotionRule::class)->handle($rule, $s->id)->active);
+        $this->assertFalse(app(DeactivatePromotionRule::class)->handle($rule, $s->id)->active);
+        $updated = app(UpdatePromotionRule::class)->handle($rule, ['minimum_gpa' => 3], $s->id);
+        $this->assertSame('3.00', (string) $updated->minimum_gpa);
+    }
+
     public function test_apply_promotion_missing_report_rolls_back_without_target_enrollment(): void
     {
         $s = School::factory()->create();
