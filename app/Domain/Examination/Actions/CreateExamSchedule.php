@@ -26,7 +26,10 @@ class CreateExamSchedule
                 if ($m[$k]->school_id != $d['school_id']) {
                     throw ValidationException::withMessages(['school_id' => 'Invalid school scope.']);
                 }
-            }if ($m['section_id']->class_id != $m['class_id']->id || $m['exam_id']->academic_year_id != $m['academic_year_id']->id || $m['teacher_assignment_id']->teacher_id != $m['teacher_id']->id || $m['teacher_assignment_id']->subject_assignment_id != $m['subject_assignment_id']->id) {
+            }
+            $ta = $m['teacher_assignment_id'];
+            $sa = $m['subject_assignment_id'];
+            if ($m['section_id']->class_id != $m['class_id']->id || $m['exam_id']->academic_year_id != $m['academic_year_id']->id || $ta->teacher_id != $m['teacher_id']->id || $ta->subject_assignment_id != $sa->id || $ta->academic_year_id != $m['academic_year_id']->id || $ta->class_id != $m['class_id']->id || $ta->section_id != $m['section_id']->id || $sa->academic_year_id != $m['academic_year_id']->id || $sa->class_id != $m['class_id']->id || $sa->subject_id != $m['subject_id']->id || (($d['group_id'] ?? null) != $ta->group_id && $ta->group_id !== null)) {
                 throw ValidationException::withMessages(['schedule' => 'Invalid academic assignment scope.']);
             }
 

@@ -15,6 +15,6 @@ class CreateExamPaper
             throw ValidationException::withMessages(['school_id' => 'Invalid school scope.']);
         }
 
-return ExamPaper::create($d);
+        return ExamPaper::create($d);
     }
 }

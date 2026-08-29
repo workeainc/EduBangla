@@ -8,6 +8,7 @@ use App\Livewire\Admin\ExamPaperManagement;
 use App\Livewire\Admin\ExamScheduleManagement;
 use App\Livewire\Admin\PhaseThreeManagement;
 use App\Livewire\Admin\QuestionBankManagement;
+use App\Livewire\Admin\QuestionVersionDetail;
 use App\Livewire\Admin\QuestionVersions;
 use App\Livewire\Attendance\Management as AttendanceManagement;
 use App\Livewire\Teacher\ExamMarks;
@@ -78,6 +79,7 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
     Route::get('schools/{school}/admin/question-banks/create', QuestionBankManagement::class)->defaults('mode', 'banks')->name('admin.question-banks.create')->middleware('school.admin');
     Route::get('schools/{school}/admin/questions/create', QuestionBankManagement::class)->defaults('mode', 'questions')->name('admin.questions.create')->middleware('school.admin');
     Route::get('schools/{school}/admin/questions/{question}/versions', QuestionVersions::class)->name('admin.questions.versions')->middleware('school.admin');
+    Route::get('schools/{school}/admin/question-versions/{version}', QuestionVersionDetail::class)->name('admin.question-versions.show')->middleware('school.admin');
     Route::get('schools/{school}/admin/attendance/reports/daily', [AttendanceReportController::class, 'daily'])->name('admin.attendance.reports.daily')->middleware('school.admin');
     Route::get('schools/{school}/admin/attendance/reports/monthly', [AttendanceReportController::class, 'monthly'])->name('admin.attendance.reports.monthly')->middleware('school.admin');
     Route::get('schools/{school}/admin/attendance/reports/class', [AttendanceReportController::class, 'class'])->name('admin.attendance.reports.class')->middleware('school.admin');

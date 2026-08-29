@@ -5,8 +5,10 @@ namespace App\Livewire\Admin;
 use App\Domain\Examination\Actions\CreateQuestion;
 use App\Domain\Examination\Actions\CreateQuestionBank;
 use App\Domain\Examination\Actions\CreateQuestionVersion;
+use App\Domain\Examination\Actions\UpsertQuestionOption;
 use App\Models\Question;
 use App\Models\QuestionBank;
+use App\Models\QuestionVersion;
 use App\Models\School;
 use App\Models\Subject;
 use Illuminate\Support\Facades\Gate;
@@ -21,6 +23,8 @@ class QuestionBankManagement extends Component
     public array $form = [];
 
     public string $message = '';
+
+    public array $optionForm = [];
 
     public function mount(School $school, string $mode = 'banks')
     {
@@ -50,6 +54,15 @@ class QuestionBankManagement extends Component
         $q = Question::where('school_id', $this->school->id)->findOrFail($id);
         app(CreateQuestionVersion::class)->handle($q, ['school_id' => $this->school->id, 'prompt' => $this->form['prompt'] ?? '', 'marks' => (int) ($this->form['marks'] ?? 1), 'created_by' => auth()->id()]);
         $this->message = 'নতুন version তৈরি হয়েছে।';
+    }
+
+    public function saveOption(int $versionId): void
+    {
+        $this->validate(['optionForm.option_key' => 'required|string|max:10', 'optionForm.option_text' => 'required|string', 'optionForm.is_correct' => 'boolean']);
+        $version = QuestionVersion::where('school_id', $this->school->id)->findOrFail($versionId);
+        app(UpsertQuestionOption::class)->handle($version, $this->optionForm + ['school_id' => $this->school->id]);
+        $this->optionForm = [];
+        $this->message = 'Option সংরক্ষিত হয়েছে।';
     }
 
     public function render()
