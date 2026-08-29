@@ -34,9 +34,9 @@ class GradeRules extends Component
     public function save()
     {
         $this->validate(['name' => 'required|string|max:100', 'minimum_percentage' => 'required|numeric|min:0|max:100', 'maximum_percentage' => 'required|numeric|gte:minimum_percentage|max:100', 'letter_grade' => 'required|string|max:10', 'grade_point' => 'required|numeric|min:0|max:10']);
-        $overlap = GradeRule::where('school_id', $this->school->id)->where('active', true)->where(function ($q) {
-            $q->whereBetween('minimum_percentage', [$this->minimum_percentage, $this->maximum_percentage])->orWhereBetween('maximum_percentage', [$this->minimum_percentage, $this->maximum_percentage]);
-        })->exists();
+        $overlap = GradeRule::where('school_id', $this->school->id)->where('active', true)
+            ->where('minimum_percentage', '<=', $this->maximum_percentage)
+            ->where('maximum_percentage', '>=', $this->minimum_percentage)->exists();
         if ($overlap) {
             $this->addError('minimum_percentage', 'Grade range overlaps an active rule.');
 
