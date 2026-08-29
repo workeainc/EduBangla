@@ -6,6 +6,8 @@ Examination foundation, lifecycle actions, schedule foundation, question bank an
 
 The closure sprint adds duplicate/locked paper mutation protection, strict schedule assignment checks, mandatory correction reasons recorded in audit metadata, MCQ/True-False option validation, tenant-scoped option mutation and a read-only version detail screen.
 
+Final closure adds persistent option ordering, option delete/reorder/set-correct actions, strict minimum-option deletion protection, and exposes these controls from the version history UI.
+
 Additional final routes include schedule edit/update binding, bank/question show/edit bindings, question version detail, and read-only mark correction history at `/schools/{school}/admin/exams/{exam}/marks/corrections/history`.
 
 ## Verification
@@ -24,6 +26,7 @@ Code is substantially complete for the implemented Phase 5A foundation. External
 - [PASS] Manual marks entry and mandatory-reason correction auditing
 - [PASS] Schedule update persistence and bank/question status workflows
 - [PASS] Read-only correction history presentation
+- [PASS] Question option create/edit/delete/reorder/set-correct workflows
 - [PASS] Duplicate, locked and published paper mutation guards
 - [PASS] Phase 5B boundary preserved
 - [BLOCKED] MySQL full-suite verification (environment connectivity)

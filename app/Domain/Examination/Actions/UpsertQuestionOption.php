@@ -38,6 +38,6 @@ class UpsertQuestionOption
             throw ValidationException::withMessages(['option_key' => 'True/False key invalid.']);
         }
 
-        return DB::transaction(fn () => QuestionOption::updateOrCreate(['question_version_id' => $version->id, 'option_key' => $data['option_key']], ['school_id' => $version->school_id, 'option_text' => $data['option_text'], 'is_correct' => (bool) ($data['is_correct'] ?? false)]));
+        return DB::transaction(fn () => QuestionOption::updateOrCreate(['question_version_id' => $version->id, 'option_key' => $data['option_key']], ['school_id' => $version->school_id, 'option_text' => $data['option_text'], 'sort_order' => $data['sort_order'] ?? (($version->options()->max('sort_order') ?? -1) + 1), 'is_correct' => (bool) ($data['is_correct'] ?? false)]));
     }
 }

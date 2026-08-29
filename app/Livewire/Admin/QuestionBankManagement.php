@@ -6,9 +6,12 @@ use App\Domain\Audit\RecordAudit;
 use App\Domain\Examination\Actions\CreateQuestion;
 use App\Domain\Examination\Actions\CreateQuestionBank;
 use App\Domain\Examination\Actions\CreateQuestionVersion;
+use App\Domain\Examination\Actions\DeleteQuestionOption;
+use App\Domain\Examination\Actions\ReorderQuestionOption;
 use App\Domain\Examination\Actions\UpsertQuestionOption;
 use App\Models\Question;
 use App\Models\QuestionBank;
+use App\Models\QuestionOption;
 use App\Models\QuestionVersion;
 use App\Models\School;
 use App\Models\Subject;
@@ -112,6 +115,27 @@ class QuestionBankManagement extends Component
         app(UpsertQuestionOption::class)->handle($version, $this->optionForm + ['school_id' => $this->school->id]);
         $this->optionForm = [];
         $this->message = 'Option সংরক্ষিত হয়েছে।';
+    }
+
+    public function deleteOption(int $id): void
+    {
+        app(DeleteQuestionOption::class)->handle($id, $this->school->id);
+        $this->message = 'Option মুছে ফেলা হয়েছে।';
+    }
+
+    public function reorderOption(int $id, int $order): void
+    {
+        app(ReorderQuestionOption::class)->handle($id, $order, $this->school->id);
+        $this->message = 'Option order আপডেট হয়েছে।';
+    }
+
+    public function markCorrect(int $id): void
+    {
+        $option = QuestionOption::where('school_id', $this->school->id)->findOrFail($id);
+        $version = $option->questionVersion;
+        $version->options()->update(['is_correct' => false]);
+        $option->update(['is_correct' => true]);
+        $this->message = 'সঠিক উত্তর নির্ধারিত হয়েছে।';
     }
 
     public function render()
