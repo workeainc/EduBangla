@@ -5,8 +5,8 @@ All permissions are evaluated with an active school membership. A school-level r
 | Role | View | Create / update | Delete / publish | Limits |
 | --- | --- | --- | --- | --- |
 | Super Admin | Platform schools, system configuration, audited aggregates | Provision schools, platform roles/settings | Controlled platform administration | No routine school-data editing without explicit support authority |
-| School Admin | All own-school operational records | People, academic setup, exams, fees, notices | Own-school records; publish results/notices | Never another school |
-| Teacher | Assigned classes, subjects, students, attendance, exams | Assigned attendance, questions, marks, materials | Submit marks; no final result publication | Assigned scope only |
+| School Admin | All own-school operational records | Own-school teacher/staff profiles, class-group, subject and teacher assignments | Own-school records; publish results/notices | Never another school |
+| Teacher | Own profile and only own assignment records | Assigned attendance, questions, marks, materials in future modules | Submit marks; no final result publication | Role is insufficient: assignment scope and tenant are required |
 | Student | Own profile, attendance, results, routines, notices, allowed exams | Own permitted exam answers/profile requests | Submit own attempt only | Own identity only |
 | Parent | Linked children's attendance, results, routines, dues, notices | Limited contact/profile requests | None | Linked children only |
 | Accountant | Own-school fees, dues, payments, receipts | Fee/payment records | Void only with audited authority | No academic or unrelated PII access |

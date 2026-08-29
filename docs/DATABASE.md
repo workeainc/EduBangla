@@ -52,6 +52,7 @@ erDiagram
 - Online attempts retain schedule, started/submitted timestamps, server-calculated expiry, state, and idempotency key. Answers retain a question snapshot/version where required for reproducible grading.
 - `audit_logs` records actor, school context, action, target type/id, timestamp, request metadata, and safe before/after summaries. Never log passwords or raw sensitive tokens.
 - Roll is unique within `school_id + academic_year_id + class_id + section_id + group_scope + roll`; `group_scope` is `0` when no group is selected, avoiding MySQL's nullable-unique behaviour.
+- Subject assignments are unique within school, academic year, class, subject, and `group_scope`; the explicit short index name is MySQL 8-compatible.
 
 ## Required integrity and indexes
 

@@ -13,3 +13,4 @@
 11. Audit sensitive and consequential operations without recording secrets.
 12. Record material architectural choices in `docs/ADR/`; update the relevant ADR or create a new one before changing a frozen decision.
 13. Before each push, run relevant tests, inspect `git diff`/`git status`, and confirm staged files contain no sensitive data.
+14. Run the migration suite against MySQL before a production release; SQLite tests are valuable but do not replace MySQL verification.

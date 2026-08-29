@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('subject_id')->constrained()->restrictOnDelete();
             $table->foreignId('group_id')->nullable()->constrained('groups')->restrictOnDelete();
             $table->unsignedBigInteger('group_scope')->default(0);
-            $table->unique(['school_id', 'academic_year_id', 'class_id', 'subject_id', 'group_scope']);
+            $table->unique(['school_id', 'academic_year_id', 'class_id', 'subject_id', 'group_scope'], 'subject_assignment_scope_unique');
             $table->timestamps();
         });
     }

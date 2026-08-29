@@ -61,3 +61,7 @@ Use CSRF protection, secure password hashing, rate limits, validation, authoriza
 ## Scaling path
 
 Phase 1 serves one school through a modular monolith. Redis queues/cache and stateless Laravel processes support horizontal web scaling. Indexed tenant keys and asynchronous jobs keep operational queries bounded. Later, read models/aggregates can serve benchmarking without coupling reporting workloads to transactional tables. Government integrations require an explicit data-governance ADR before activation.
+
+## Phase 3 implementation
+
+School Admin routes use authenticated membership, tenant-context middleware, and a dedicated School Admin membership middleware. Teacher and Staff profiles remain school-owned records linked optionally to central Users; no credentials are duplicated. Assignment writes resolve the current tenant server-side, validate the complete academic relationship, and preserve prior-year records. Teacher profile and assignment pages resolve the profile from the authenticated user and active school, not a browser-supplied teacher identifier. MySQL 8.4 migration and seed verification was completed locally on 2026-08-29.

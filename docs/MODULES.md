@@ -6,7 +6,7 @@
 | School | Schools, settings, academic years | Identity | Tenant provisioning, regional metadata |
 | Academic | Curriculum, classes, sections, groups, subjects, assignments, timetable | School, Teacher | Multiple curricula, scheduling optimizer |
 | Student | Persistent school-owned students, guardians, student-guardian links, historical enrollments | Academic, Identity | Transfers, alumni, admissions workflow; future central identity linking |
-| Teacher & Staff | Profiles, assignments, staff records | School, Academic | HR and payroll integrations |
+| Teacher & Staff | Tenant-owned teacher/staff profiles; academic-year-scoped class/group/subject/teacher assignments | School, Academic, Identity | HR and payroll integrations; attendance and examination consume assignments as scope, not teacher role alone |
 | Attendance | Sessions and student/teacher attendance | Student, Academic | QR, biometric, device adapters |
 | Examination | Exams, schedules, question bank, attempts, answers, marks | Academic, Student | Proctoring, item analytics |
 | Result | Assessment structures, grade rules, calculations, results, promotion | Examination, Academic | Rule versions, transcript service |
