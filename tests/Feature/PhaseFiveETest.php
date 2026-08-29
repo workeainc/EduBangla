@@ -12,8 +12,11 @@ use App\Livewire\Admin\PromotionRules;
 use App\Models\AcademicClass;
 use App\Models\AcademicYear;
 use App\Models\Enrollment;
+use App\Models\Exam;
 use App\Models\Promotion;
 use App\Models\PromotionRule;
+use App\Models\ReportCard;
+use App\Models\Result;
 use App\Models\School;
 use App\Models\SchoolUser;
 use App\Models\Section;
@@ -108,6 +111,32 @@ class PhaseFiveETest extends TestCase
             $this->assertDatabaseMissing('enrollments', ['student_id' => $st->id, 'academic_year_id' => $targetYear->id, 'status' => 'active']);
             $this->assertSame('approved', $p->fresh()->status);
             $this->assertSame($en->id, $p->fresh()->source_enrollment_id);
+            $this->assertDatabaseMissing('audit_logs', ['action' => 'promotion.applied', 'auditable_id' => $p->id]);
+        }
+    }
+
+    public function test_apply_promotion_rolls_back_after_target_enrollment_failure(): void
+    {
+        $s = School::factory()->create();
+        $u = User::factory()->create();
+        $st = Student::factory()->create(['school_id' => $s->id]);
+        $sourceYear = AcademicYear::factory()->create(['school_id' => $s->id, 'name' => '2030']);
+        $targetYear = AcademicYear::factory()->create(['school_id' => $s->id, 'name' => '2031']);
+        $sourceClass = AcademicClass::factory()->create(['school_id' => $s->id]);
+        $targetClass = AcademicClass::factory()->create(['school_id' => $s->id]);
+        $section = Section::factory()->create(['school_id' => $s->id, 'class_id' => $sourceClass->id]);
+        $en = Enrollment::create(['school_id' => $s->id, 'student_id' => $st->id, 'academic_year_id' => $sourceYear->id, 'class_id' => $sourceClass->id, 'section_id' => $section->id, 'roll' => 1, 'status' => 'active', 'enrolled_at' => '2026-01-01']);
+        $exam = Exam::factory()->create(['school_id' => $s->id, 'academic_year_id' => $sourceYear->id, 'created_by' => $u->id]);
+        $result = Result::create(['school_id' => $s->id, 'exam_id' => $exam->id, 'student_id' => $st->id, 'enrollment_id' => $en->id, 'status' => 'published', 'total_obtained' => 80, 'total_marks' => 100, 'percentage' => 80]);
+        ReportCard::create(['school_id' => $s->id, 'result_id' => $result->id, 'student_id' => $st->id, 'enrollment_id' => $en->id, 'exam_id' => $exam->id, 'status' => 'published', 'gpa' => 4, 'overall_status' => 'pass']);
+        $p = Promotion::create(['school_id' => $s->id, 'academic_year_id' => $sourceYear->id, 'student_id' => $st->id, 'source_enrollment_id' => $en->id, 'source_class_id' => $sourceClass->id, 'source_section_id' => $section->id, 'target_academic_year_id' => $targetYear->id, 'target_class_id' => $targetClass->id, 'status' => 'approved']);
+        $this->actingAs($u);
+        try {
+            app(ApplyPromotion::class)->handle($p, $s->id, fn () => throw new \RuntimeException('forced failure'));
+            $this->fail('Forced failure should rollback.');
+        } catch (\RuntimeException $e) {
+            $this->assertDatabaseMissing('enrollments', ['student_id' => $st->id, 'academic_year_id' => $targetYear->id, 'status' => 'active']);
+            $this->assertSame('approved', $p->fresh()->status);
             $this->assertDatabaseMissing('audit_logs', ['action' => 'promotion.applied', 'auditable_id' => $p->id]);
         }
     }
