@@ -2,8 +2,10 @@
 
 namespace App\Domain\Examination\Actions;
 
+use App\Domain\Audit\RecordAudit;
 use App\Models\Question;
 use App\Models\QuestionBank;
+use App\Models\User;
 use Illuminate\Validation\ValidationException;
 
 class CreateQuestion
@@ -15,6 +17,11 @@ class CreateQuestion
             throw ValidationException::withMessages(['school_id' => 'Invalid school scope.']);
         }
 
-return Question::create($d);
+        $question = Question::create($d);
+        if ($actor = User::find($d['created_by'] ?? null)) {
+            app(RecordAudit::class)->handle($actor, $d['school_id'], 'question.created', $question);
+        }
+
+        return $question;
     }
 }

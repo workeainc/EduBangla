@@ -2,8 +2,10 @@
 
 namespace App\Domain\Examination\Actions;
 
+use App\Domain\Audit\RecordAudit;
 use App\Models\Question;
 use App\Models\QuestionVersion;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -18,7 +20,12 @@ class CreateQuestionVersion
             $d['question_id'] = $q->id;
             $d['version'] = ($q->versions()->max('version') ?? 0) + 1;
 
-            return QuestionVersion::create($d);
+            $version = QuestionVersion::create($d);
+            if ($actor = User::find($d['created_by'] ?? null)) {
+                app(RecordAudit::class)->handle($actor, $q->school_id, 'question.version_created', $version);
+            }
+
+            return $version;
         });
     }
 }
