@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\AttendanceReportController;
 use App\Livewire\Admin\AttendanceCorrections;
+use App\Livewire\Admin\ExamManagement;
 use App\Livewire\Admin\PhaseThreeManagement;
 use App\Livewire\Attendance\Management as AttendanceManagement;
+use App\Livewire\Teacher\Exams as TeacherExams;
 use App\Livewire\Teacher\MyAssignments;
 use App\Models\School;
 use App\Models\Staff;
@@ -51,8 +53,10 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
     Route::get('schools/{school}/teacher/assignments', MyAssignments::class)->name('teacher.assignments');
     Route::get('schools/{school}/teacher/profile', MyAssignments::class)->name('teacher.profile');
     Route::get('schools/{school}/teacher/attendance', AttendanceManagement::class)->name('teacher.attendance')->middleware('teacher');
+    Route::get('schools/{school}/teacher/exams', TeacherExams::class)->name('teacher.exams')->middleware('teacher');
     Route::get('schools/{school}/admin/attendance', AttendanceManagement::class)->name('admin.attendance')->middleware('school.admin');
     Route::get('schools/{school}/admin/attendance/corrections', AttendanceCorrections::class)->name('admin.attendance.corrections')->middleware('school.admin');
+    Route::get('schools/{school}/admin/exams', ExamManagement::class)->name('admin.exams')->middleware('school.admin');
     Route::get('schools/{school}/admin/attendance/reports/daily', [AttendanceReportController::class, 'daily'])->name('admin.attendance.reports.daily')->middleware('school.admin');
     Route::get('schools/{school}/admin/attendance/reports/monthly', [AttendanceReportController::class, 'monthly'])->name('admin.attendance.reports.monthly')->middleware('school.admin');
     Route::get('schools/{school}/admin/attendance/reports/class', [AttendanceReportController::class, 'class'])->name('admin.attendance.reports.class')->middleware('school.admin');
