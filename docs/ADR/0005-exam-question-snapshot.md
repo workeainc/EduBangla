@@ -7,3 +7,4 @@ When an online attempt starts, selected question versions, ordering, marks and s
 ## Rationale
 
 Historical evidence remains reproducible after question edits, version changes or question-bank retirement.
+Phase 5B materializes paper questions and options into `exam_attempt_questions` at start; subsequent authoring changes never alter the student view.

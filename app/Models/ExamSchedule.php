@@ -44,6 +44,11 @@ class ExamSchedule extends Model
         return $this->belongsTo(TeacherAssignment::class);
     }
 
+    public function examPaper()
+    {
+        return $this->hasOne(ExamPaper::class, 'exam_schedule_id');
+    }
+
     public function subjectAssignment()
     {
         return $this->belongsTo(SubjectAssignment::class);

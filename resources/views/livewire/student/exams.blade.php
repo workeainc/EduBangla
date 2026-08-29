@@ -1,0 +1,1 @@
+<div class="p-6"><h1 class="text-2xl font-bold">Online Exams</h1><ul>@forelse($schedules as $s)<li class="border p-3">{{ $s->exam->name }} — {{ $s->subject->name }} — {{ $s->scheduled_date }} <a class="text-blue-700" href="{{ route('student.exams.start',['school'=>$school,'exam'=>$s->exam]) }}">Start</a></li>@empty<li>কোনো eligible exam নেই।</li>@endforelse</ul></div>

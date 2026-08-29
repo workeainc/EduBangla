@@ -12,7 +12,7 @@ class Student extends Model
     /** @use HasFactory<StudentFactory> */
     use BelongsToSchool, HasFactory;
 
-    protected $fillable = ['school_id', 'student_code', 'first_name', 'last_name', 'date_of_birth', 'gender', 'phone', 'email', 'address', 'admission_date', 'status'];
+    protected $fillable = ['school_id', 'user_id', 'student_code', 'first_name', 'last_name', 'date_of_birth', 'gender', 'phone', 'email', 'address', 'admission_date', 'status'];
 
     protected function casts(): array
     {
@@ -27,5 +27,10 @@ class Student extends Model
     public function enrollments()
     {
         return $this->hasMany(Enrollment::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

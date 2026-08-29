@@ -33,7 +33,7 @@ Admin: `/schools/{school}/admin/exams`, `/create`, `/{exam}`, `/{exam}/edit`, `/
 Teacher: `/schools/{school}/teacher/exams`, `/{exam}/marks`  
 Student: `/schools/{school}/student/exams`, `/{schedule}`, `/{schedule}/attempt`
 
-Phase 5A implements the examination foundation, question bank versioning, lifecycle foundation, manual marks foundation and Admin/Teacher listing interfaces. Online attempts, answer submission and Result remain unimplemented.
+Phase 5A implements the examination foundation, question bank versioning, lifecycle foundation, manual marks foundation and Admin/Teacher listing interfaces. Phase 5B now implements student online attempts, immutable snapshots, server timing, answers, expiry and submission. Result remains unimplemented.
 
-Implemented routes include Admin exam/question-bank/question screens and Teacher exam/marks screens. Schedule and paper models/actions are available as foundation; dedicated online attempt routes remain unimplemented.
+Implemented routes include Admin exam/question-bank/question screens, Teacher exam/marks screens, and Student exam/attempt screens.
 Schedule management, paper management, question version history and Admin mark-correction screens are available through the corresponding Admin routes.

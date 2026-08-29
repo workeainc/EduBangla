@@ -49,3 +49,5 @@ An attempt receives immutable `exam_attempt_questions` snapshots at start. Quest
 
 Phase 5A implements the examination foundation tables through migration `2026_08_29_200000_create_examination_foundation_tables`. Online attempt tables remain intentionally unimplemented.
 Question options are tenant-scoped through `school_id` and uniquely keyed per version. Paper totals are recalculated transactionally after add/remove operations; examination lifecycle timestamps protect locked and published records.
+
+Phase 5B adds `exam_attempts`, `exam_attempt_questions` and `exam_answers`; attempt-question rows snapshot prompt/type/marks/order/options so authoring changes cannot rewrite an active exam.
