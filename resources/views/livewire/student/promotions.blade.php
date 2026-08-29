@@ -1,0 +1,1 @@
+<div class="p-6"><h1 class="text-2xl font-bold">Academic Progression</h1>@forelse($promotions as $p)<p>{{ $p->targetClass->name }} — {{ $p->targetAcademicYear->name }}</p>@empty<p>No published promotion history.</p>@endforelse</div>

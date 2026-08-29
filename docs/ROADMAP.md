@@ -18,4 +18,4 @@ Phase 4 closure includes daily/monthly/class/student operational reports, contro
 
 Phase 5A examination foundation is frozen for handoff. Phase 5B (online attempt, timer, answers and results) must begin only after explicit approval.
 
-Phase 5C delivered the Result foundation. Phase 5D adds grade rules, equal-weight GPA and immutable report-card foundation. Promotion remains future scope.
+Phase 5C delivered the Result foundation. Phase 5D adds grade rules, equal-weight GPA and immutable report-card foundation. Phase 5E adds promotion and academic progression from published report cards.
