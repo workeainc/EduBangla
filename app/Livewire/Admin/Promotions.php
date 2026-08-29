@@ -15,9 +15,15 @@ class Promotions extends Component
 {
     public School $school;
 
-    public function mount(School $school)
+    public ?Promotion $promotion = null;
+
+    public function mount(School $school, ?Promotion $promotion = null)
     {
         $this->school = $school;
+        if ($promotion && $promotion->school_id !== $school->id) {
+            abort(404);
+        }
+        $this->promotion = $promotion;
         Gate::authorize('update', $school);
     }
 

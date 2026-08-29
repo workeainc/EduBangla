@@ -13,4 +13,14 @@ class PromotionRule extends Model
     protected $fillable = ['school_id', 'source_class_id', 'target_class_id', 'minimum_gpa', 'minimum_passed_subjects', 'failed_subject_tolerance', 'active'];
 
     protected $casts = ['minimum_gpa' => 'decimal:2', 'active' => 'boolean'];
+
+    public function sourceClass()
+    {
+        return $this->belongsTo(AcademicClass::class, 'source_class_id');
+    }
+
+    public function targetClass()
+    {
+        return $this->belongsTo(AcademicClass::class, 'target_class_id');
+    }
 }
