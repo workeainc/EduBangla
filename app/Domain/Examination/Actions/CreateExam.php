@@ -2,9 +2,11 @@
 
 namespace App\Domain\Examination\Actions;
 
+use App\Domain\Audit\RecordAudit;
 use App\Models\AcademicYear;
 use App\Models\Exam;
 use App\Models\ExamType;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -19,7 +21,12 @@ class CreateExam
                 throw ValidationException::withMessages(['school_id' => 'Invalid school scope.']);
             }
 
-            return Exam::create($d + ['status' => 'draft']);
+            $exam = Exam::create($d + ['status' => 'draft']);
+            if ($actor = User::find($d['created_by'] ?? null)) {
+                app(RecordAudit::class)->handle($actor, $d['school_id'], 'exam.created', $exam, null, $exam->only(['id', 'name', 'status']));
+            }
+
+            return $exam;
         });
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Domain\Examination\Actions;
 
+use App\Domain\Audit\RecordAudit;
 use App\Models\Enrollment;
 use App\Models\ExamMark;
 use App\Models\ExamSchedule;
@@ -23,7 +24,12 @@ class EnterExamMark
                 throw ValidationException::withMessages(['marks' => 'Marks exceed maximum.']);
             }
 
-            return ExamMark::updateOrCreate(['exam_schedule_id' => $s->id, 'student_id' => $e->student_id], $d + ['school_id' => $s->school_id, 'entered_at' => now()]);
+            $mark = ExamMark::updateOrCreate(['exam_schedule_id' => $s->id, 'student_id' => $e->student_id], $d + ['school_id' => $s->school_id, 'entered_at' => now()]);
+            if ($actor = auth()->user()) {
+                app(RecordAudit::class)->handle($actor, $s->school_id, 'exam.mark_entered', $mark, null, ['marks' => $mark->marks, 'student_id' => $mark->student_id]);
+            }
+
+            return $mark;
         });
     }
 }
