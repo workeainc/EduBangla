@@ -21,7 +21,10 @@ delivered Result; Phase 5D delivered grade, GPA and immutable report cards;
 Phase 5E delivered promotion from published report cards; Phase 5F delivered
 the explicit, immutable finance foundation.
 
-Phase 5G is selected by discovery only: Communication / in-app Notice
-Foundation. Its implementation has not started. See
-`docs/ADR/0013-communication-notice-boundary.md` and
-`plans/002-communication-notice-foundation.md`.
+Phase 5G delivered the tenant-safe Communication / in-app Notice Foundation at
+`cf01e26`. SQLite and MySQL full suites, Composer audit, Pint, Blade cache,
+route inventory and diff checks passed. Browser verification remains blocked:
+`BROWSER VERIFICATION: BLOCKED — AUTHENTICATED SESSION UNAVAILABLE`.
+
+Phase 5H is selected by discovery only: Academic Timetable Foundation. Its
+implementation has not started; see `plans/003-academic-timetable-foundation.md`.

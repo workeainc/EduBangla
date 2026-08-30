@@ -1,6 +1,6 @@
 # ADR 0013: Communication Notice Foundation Boundary
 
-- Status: Accepted for Phase 5G planning; implementation not started
+- Status: Accepted and implemented at `cf01e26`; authenticated browser verification blocked
 - Date: 2026-08-30
 
 ## Context
