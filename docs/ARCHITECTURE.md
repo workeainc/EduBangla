@@ -2,7 +2,9 @@
 
 Attendance actions and policies extend the frozen Phase 1–3 tenant architecture. Explicit session scope and enrollment references preserve historical meaning after later academic changes.
 
-Phase 5 architecture is documented separately in `PHASE_5_SCOPE.md`, `PHASE_5_DATABASE.md` and `PHASE_5_SECURITY.md`. It remains design-only; no examination code is implemented.
+Phase 5 architecture is documented in the phase-specific scope, database,
+security and acceptance documents. Phases 5A–5H are code-delivered foundations;
+their deferred boundaries remain explicit.
 
 ## System overview
 

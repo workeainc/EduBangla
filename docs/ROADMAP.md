@@ -26,5 +26,6 @@ Phase 5G delivered the tenant-safe Communication / in-app Notice Foundation at
 route inventory and diff checks passed. Browser verification remains blocked:
 `BROWSER VERIFICATION: BLOCKED — AUTHENTICATED SESSION UNAVAILABLE`.
 
-Phase 5H is selected by discovery only: Academic Timetable Foundation. Its
-implementation has not started; see `plans/003-academic-timetable-foundation.md`.
+Phase 5H delivered the Academic Timetable Foundation at `af201c6`; authenticated
+browser verification remains environment-blocked. Plan 004 now covers
+Integration / Pilot Hardening before any new domain phase.

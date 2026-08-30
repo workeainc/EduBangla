@@ -11,7 +11,10 @@
 
 Phase 4 attendance is implemented as a separate domain. Sessions are DRAFT or FINALIZED; student rows use present, absent, late and excused statuses. Bulk recording is transactional, teacher scope is assignment-based, and finalized sessions are read-only. Percentage formula: `(present + late) / (present + absent + late + excused)`.
 
-Phase 5A Examination, Question Bank, scheduling, paper structure and manual marks foundation are implemented. Online attempts and Result/GPA remain explicitly excluded.
+Phase 5A–5B Examination, Question Bank, scheduling, paper structure, manual
+marks and online-attempt foundations are implemented. Result, grade/GPA,
+ReportCard, Promotion, Finance, Communication and Timetable foundations are
+also delivered in their accepted phases; later expansions remain deferred.
 
 Operational reports are available for daily, monthly, class/section and student views. School Admins may correct a finalized status through a transaction; the old/new status is recorded in the audit log. Students with no records render safely with zero percentage.
 

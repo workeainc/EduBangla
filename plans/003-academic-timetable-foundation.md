@@ -16,7 +16,7 @@
 - **Depends on**: completed Plans 001–002; accepted Academic, Teacher, tenant, audit and portal foundations.
 - **Category**: direction | architecture | migration | security | tests | docs
 - **Planned at**: commit `cf01e26`, 2026-08-30
-- **Status**: TODO — implementation not started.
+- **Status**: Implemented at `af201c6`; authenticated browser verification blocked.
 
 ## Why this matters
 

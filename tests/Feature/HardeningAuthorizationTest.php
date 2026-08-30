@@ -37,4 +37,13 @@ class HardeningAuthorizationTest extends TestCase
 
         $this->actingAs($user)->get(route('teacher.assignments', $school))->assertOk();
     }
+
+    public function test_admin_timetable_screen_renders_school_scoped_assignment_labels(): void
+    {
+        $school = School::factory()->create();
+        $user = User::factory()->create();
+        SchoolUser::create(['school_id' => $school->id, 'user_id' => $user->id, 'role' => 'school-admin', 'status' => 'active']);
+
+        $this->actingAs($user)->get(route('admin.timetables', $school))->assertOk();
+    }
 }
