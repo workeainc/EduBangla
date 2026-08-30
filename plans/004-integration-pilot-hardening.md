@@ -1,7 +1,7 @@
 # Integration / Pilot Hardening Plan
 
-**Status:** Proposed discovery plan only — no implementation started  
-**Baseline:** `af201c6` on `codex/phase-5h-academic-timetable`  
+**Status:** Proposed discovery plan only — no implementation started
+**Baseline:** `af201c6` on `codex/phase-5h-academic-timetable`
 **Scope rule:** This plan is read-only discovery output. It does not authorize Phase 5I or any new domain.
 
 ## 1. Current baseline
@@ -22,9 +22,9 @@ The application is a Laravel modular monolith using Livewire, shared-database ro
 
 ## 3. HARDEN-01 Authorization normalization
 
-**Priority:** P0  
-**Effort:** M  
-**Risk:** MED — tightening school-local checks can expose legacy role assumptions.  
+**Priority:** P0
+**Effort:** M
+**Risk:** MED — tightening school-local checks can expose legacy role assumptions.
 **Dependencies:** Identity, `TenantContext`, school memberships, existing policies and route tests.
 
 **Current evidence:**
@@ -47,9 +47,9 @@ The application is a Laravel modular monolith using Livewire, shared-database ro
 
 ## 4. HARDEN-02 Pilot workflow characterization
 
-**Priority:** P0  
-**Effort:** L  
-**Risk:** HIGH — integration tests can accidentally make one domain authoritative over another.  
+**Priority:** P0
+**Effort:** L
+**Risk:** HIGH — integration tests can accidentally make one domain authoritative over another.
 **Dependencies:** all accepted domain Actions and existing feature tests.
 
 | Transition | Authority / Action | Boundary and audit | Current state |
@@ -76,9 +76,9 @@ The application is a Laravel modular monolith using Livewire, shared-database ro
 
 ## 5. HARDEN-03 Backup/restore rehearsal
 
-**Priority:** P0  
-**Effort:** M  
-**Risk:** HIGH — restore commands are destructive if pointed at a real database.  
+**Priority:** P0
+**Effort:** M
+**Risk:** HIGH — restore commands are destructive if pointed at a real database.
 **Dependencies:** MySQL 8.x, disposable database/schema, isolated credentials supplied by environment.
 
 **Current evidence:** `docs/PILOT_SCOPE.md:12` requires backups/restore; `docs/ARCHITECTURE.md:61-63` requires procedures before production. No repository runbook or rehearsal artifact was found.
@@ -91,9 +91,9 @@ The application is a Laravel modular monolith using Livewire, shared-database ro
 
 ## 6. HARDEN-04 Audit governance
 
-**Priority:** P0  
-**Effort:** M  
-**Risk:** MED — changing audit retention or mutability affects support and compliance evidence.  
+**Priority:** P0
+**Effort:** M
+**Risk:** MED — changing audit retention or mutability affects support and compliance evidence.
 **Dependencies:** `RecordAudit`, `AuditLog`, all consequential Actions, school membership policy.
 
 **Current evidence:** `app/Domain/Audit/RecordAudit.php:9-13` writes actor, school, action, target and before/after JSON. `app/Models/AuditLog.php:7-18` has no explicit tenant scope, read policy, immutable model guard or retention behavior. `database/migrations/2026_08_29_100001_create_audit_logs_table.php:10-27` has target indexing but no governance metadata. No audit viewer was found.
@@ -106,8 +106,8 @@ The application is a Laravel modular monolith using Livewire, shared-database ro
 
 ## 7. HARDEN-05 Timetable UX hardening
 
-**Priority:** P1  
-**Effort:** M  
+**Priority:** P1
+**Effort:** M
 **Risk:** LOW/MED — selector changes can create stale browser values, but Actions remain authoritative.
 
 **Dependencies:** Phase 5H models/actions and tenant-scoped academic queries.
@@ -122,8 +122,8 @@ The application is a Laravel modular monolith using Livewire, shared-database ro
 
 ## 8. HARDEN-06 Documentation reconciliation
 
-**Priority:** P1  
-**Effort:** S  
+**Priority:** P1
+**Effort:** S
 **Risk:** LOW — documentation-only, but stale statements can misdirect future implementation.
 
 **Dependencies:** accepted commit history and current code inventory.
@@ -141,8 +141,8 @@ The application is a Laravel modular monolith using Livewire, shared-database ro
 
 ## 9. HARDEN-07 Parent identity ADR requirement
 
-**Priority:** P1 decision gate  
-**Effort:** S for ADR; L for any later implementation  
+**Priority:** P1 decision gate
+**Effort:** S for ADR; L for any later implementation
 **Risk:** HIGH — incorrect linking can expose children across schools.
 
 **Dependencies:** central `User`, `Guardian`, student-guardian links, `school_users`, TenantContext and privacy policy.
