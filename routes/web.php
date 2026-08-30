@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AttendanceReportController;
+use App\Livewire\Academic\StudentTimetable;
+use App\Livewire\Academic\TeacherTimetable;
 use App\Livewire\Admin\AttendanceCorrections;
 use App\Livewire\Admin\ExamCorrectionHistory;
 use App\Livewire\Admin\ExamManagement;
@@ -19,6 +21,7 @@ use App\Livewire\Admin\QuestionVersions;
 use App\Livewire\Admin\ReportCardDetail;
 use App\Livewire\Admin\ReportCards as AdminReportCards;
 use App\Livewire\Admin\ResultManagement;
+use App\Livewire\Admin\Timetables as AdminTimetables;
 use App\Livewire\Attendance\Management as AttendanceManagement;
 use App\Livewire\Communication\Inbox as CommunicationInbox;
 use App\Livewire\Student\Attempt as StudentAttempt;
@@ -106,6 +109,12 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
     Route::get('schools/{school}/admin/notices/create', AdminNotices::class)->name('admin.notices.create')->middleware('school.admin');
     Route::get('schools/{school}/admin/notices/{notice}', AdminNotices::class)->name('admin.notices.show')->middleware('school.admin');
     Route::get('schools/{school}/admin/notices/{notice}/edit', AdminNotices::class)->name('admin.notices.edit')->middleware('school.admin');
+    Route::get('schools/{school}/admin/timetables', AdminTimetables::class)->name('admin.timetables')->middleware('school.admin');
+    Route::get('schools/{school}/admin/timetables/create', AdminTimetables::class)->name('admin.timetables.create')->middleware('school.admin');
+    Route::get('schools/{school}/admin/timetables/{timetable}', AdminTimetables::class)->name('admin.timetables.show')->middleware('school.admin');
+    Route::get('schools/{school}/admin/timetables/{timetable}/edit', AdminTimetables::class)->name('admin.timetables.edit')->middleware('school.admin');
+    Route::get('schools/{school}/teacher/timetable', TeacherTimetable::class)->name('teacher.timetable')->middleware('school.role:teacher');
+    Route::get('schools/{school}/student/timetable', StudentTimetable::class)->name('student.timetable')->middleware('student');
     Route::get('schools/{school}/teacher/notices', CommunicationInbox::class)->defaults('role', 'teacher')->name('teacher.notices')->middleware('school.role:teacher');
     Route::get('schools/{school}/teacher/notices/{delivery}', CommunicationInbox::class)->defaults('role', 'teacher')->name('teacher.notices.show')->middleware('school.role:teacher');
     Route::get('schools/{school}/student/notices', CommunicationInbox::class)->defaults('role', 'student')->name('student.notices')->middleware('student');
