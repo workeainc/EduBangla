@@ -1,8 +1,8 @@
 # Roadmap
 
-Phase 4 (Attendance Foundation, Recording and Basic Reporting) is implemented. Phase 5 remains unstarted.
-
-Phase 5 architecture-only design is complete; implementation is intentionally not started. Result, GPA, promotion and analytics remain later scope.
+Phase 4 is frozen. Phase 5A–5E are accepted/frozen and Phase 5F Finance is
+code accepted at `83ac2df`; its browser verification remains environment-blocked.
+No further Phase 5F feature work is in scope.
 
 Phase 4 closure includes daily/monthly/class/student operational reports, controlled finalized-session corrections and correction auditing. National analytics and all Phase 5 modules remain out of scope.
 
@@ -16,6 +16,12 @@ Phase 4 closure includes daily/monthly/class/student operational reports, contro
 | 5 — Central education intelligence | Governed, de-identified aggregate analytics and intervention measurement. |
 | 6 — Government integration readiness | Standards mapping, consent/governance controls, security assessment, documented integration contracts. |
 
-Phase 5A examination foundation is frozen for handoff. Phase 5B (online attempt, timer, answers and results) must begin only after explicit approval.
+Phase 5A–5B delivered examination and online-attempt foundations. Phase 5C
+delivered Result; Phase 5D delivered grade, GPA and immutable report cards;
+Phase 5E delivered promotion from published report cards; Phase 5F delivered
+the explicit, immutable finance foundation.
 
-Phase 5C delivered the Result foundation. Phase 5D adds grade rules, equal-weight GPA and immutable report-card foundation. Phase 5E adds promotion and academic progression from published report cards.
+Phase 5G is selected by discovery only: Communication / in-app Notice
+Foundation. Its implementation has not started. See
+`docs/ADR/0013-communication-notice-boundary.md` and
+`plans/002-communication-notice-foundation.md`.
