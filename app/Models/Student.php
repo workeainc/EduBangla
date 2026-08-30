@@ -33,4 +33,14 @@ class Student extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 }

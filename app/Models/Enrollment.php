@@ -18,4 +18,24 @@ class Enrollment extends Model
     {
         return ['enrolled_at' => 'date'];
     }
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
+
+    public function academicYear()
+    {
+        return $this->belongsTo(AcademicYear::class);
+    }
+
+    public function academicClass()
+    {
+        return $this->belongsTo(AcademicClass::class, 'class_id');
+    }
+
+    public function section()
+    {
+        return $this->belongsTo(Section::class);
+    }
 }

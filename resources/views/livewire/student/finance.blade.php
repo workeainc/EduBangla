@@ -1,0 +1,1 @@
+<div><h1>My finance</h1><ul>@foreach($invoices as $invoice)<li><a href="{{ route('student.finance.invoice', [$school, $invoice]) }}">{{ $invoice->invoice_number }}</a> — {{ $invoice->status }} — {{ $balances[$invoice->id]['outstanding_total'] }}</li>@endforeach</ul></div>

@@ -22,7 +22,7 @@ class GenerateReportCard
                 app(RecordAudit::class)->handle(auth()->user(), $schoolId, 'report_card.generated', $card);
             }
 
-return $card;
+            return $card;
         });
     }
 }

@@ -13,6 +13,6 @@ class ResultPolicy extends SchoolOwnedPolicy
             return true;
         }
 
-return $result->student()->where('user_id', $user->id)->exists() && $result->status === 'published' && $user->schoolMemberships()->where(['school_id' => $result->school_id, 'role' => 'student', 'status' => 'active'])->exists();
+        return $result->student()->where('user_id', $user->id)->exists() && $result->status === 'published' && $user->schoolMemberships()->where(['school_id' => $result->school_id, 'role' => 'student', 'status' => 'active'])->exists();
     }
 }

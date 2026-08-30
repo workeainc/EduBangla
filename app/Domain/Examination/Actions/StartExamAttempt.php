@@ -44,7 +44,7 @@ class StartExamAttempt
                 app(RecordAudit::class)->handle($user, $schoolId, 'exam.attempt_started', $attempt, null, ['exam_id' => $exam->id, 'student_id' => $student->id]);
             }
 
-return $attempt;
+            return $attempt;
         });
     }
 }

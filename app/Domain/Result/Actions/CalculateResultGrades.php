@@ -43,7 +43,7 @@ class CalculateResultGrades
                 app(RecordAudit::class)->handle(auth()->user(), $schoolId, 'result.grades_calculated', $result);
             }
 
-return $result->refresh();
+            return $result->refresh();
         });
     }
 }

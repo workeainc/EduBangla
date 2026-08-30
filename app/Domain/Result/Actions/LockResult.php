@@ -19,7 +19,7 @@ class LockResult
                 app(RecordAudit::class)->handle(auth()->user(), $schoolId, 'result.locked', $result);
             }
 
-return $result->refresh();
+            return $result->refresh();
         });
     }
 }

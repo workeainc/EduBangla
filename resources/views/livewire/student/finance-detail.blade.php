@@ -1,0 +1,1 @@
+<div><h1>{{ $invoice->invoice_number }}</h1><p>Outstanding: {{ $balance['outstanding_total'] }}</p><ul>@foreach($invoice->items as $item)<li>{{ $item->category_name }} — {{ $item->amount }}</li>@endforeach</ul></div>

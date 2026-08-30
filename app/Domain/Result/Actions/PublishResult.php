@@ -19,7 +19,7 @@ class PublishResult
                 app(RecordAudit::class)->handle(auth()->user(), $schoolId, 'result.published', $result);
             }
 
-return $result->refresh();
+            return $result->refresh();
         });
     }
 }

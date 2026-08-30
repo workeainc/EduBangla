@@ -19,7 +19,7 @@ class PublishReportCard
                 app(RecordAudit::class)->handle(auth()->user(), $schoolId, 'report_card.published', $card);
             }
 
-return $card->refresh();
+            return $card->refresh();
         });
     }
 }
