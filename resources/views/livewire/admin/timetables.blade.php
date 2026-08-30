@@ -2,14 +2,14 @@
     <h1>Timetables</h1>
     <form wire:submit="saveDraft">
         <input wire:model="name" placeholder="Timetable name">
-        <input wire:model="academic_year_id" placeholder="Academic year ID">
-        <input wire:model="class_id" placeholder="Class ID">
-        <input wire:model="section_id" placeholder="Section ID">
+        <select wire:model="academic_year_id"><option value="">Academic year</option>@foreach ($years as $year)<option value="{{ $year->id }}">{{ $year->name }}</option>@endforeach</select>
+        <select wire:model="class_id"><option value="">Class</option>@foreach ($classes as $class)<option value="{{ $class->id }}">{{ $class->name }}</option>@endforeach</select>
+        <select wire:model="section_id"><option value="">Section</option>@foreach ($sections as $section)<option value="{{ $section->id }}">{{ $section->name }}</option>@endforeach</select>
         <button type="button" wire:click="addSlot">Add slot</button>
         @foreach ($slots as $index => $slot)
             <fieldset wire:key="slot-{{ $index }}">
-                <input wire:model="slots.{{ $index }}.teacher_assignment_id" placeholder="Teacher assignment ID">
-                <input wire:model="slots.{{ $index }}.subject_assignment_id" placeholder="Subject assignment ID">
+                <select wire:model="slots.{{ $index }}.teacher_assignment_id"><option value="">Teacher assignment</option>@foreach ($assignments as $assignment)<option value="{{ $assignment->id }}">{{ $assignment->teacher?->first_name }} {{ $assignment->teacher?->last_name }} — {{ $assignment->subjectAssignment?->subject?->name }} ({{ $assignment->academicClass?->name }}/{{ $assignment->section?->name }})</option>@endforeach</select>
+                <select wire:model="slots.{{ $index }}.subject_assignment_id"><option value="">Subject assignment</option>@foreach ($assignments as $assignment)<option value="{{ $assignment->subject_assignment_id }}">{{ $assignment->subjectAssignment?->subject?->name }} — {{ $assignment->academicClass?->name }}/{{ $assignment->section?->name }}</option>@endforeach</select>
                 <input wire:model="slots.{{ $index }}.weekday" placeholder="Weekday (0-6)">
                 <input wire:model="slots.{{ $index }}.starts_at" placeholder="Start (HH:MM)">
                 <input wire:model="slots.{{ $index }}.ends_at" placeholder="End (HH:MM)">

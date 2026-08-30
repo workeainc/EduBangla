@@ -9,6 +9,7 @@ use App\Models\AcademicClass;
 use App\Models\AcademicYear;
 use App\Models\School;
 use App\Models\Section;
+use App\Models\TeacherAssignment;
 use App\Models\Timetable;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
@@ -75,6 +76,6 @@ class Timetables extends Component
 
     public function render()
     {
-        return view('livewire.admin.timetables', ['timetables' => Timetable::forSchool($this->school)->withCount('slots')->latest()->get(), 'years' => AcademicYear::forSchool($this->school)->get(), 'classes' => AcademicClass::forSchool($this->school)->get(), 'sections' => Section::forSchool($this->school)->get()]);
+        return view('livewire.admin.timetables', ['timetables' => Timetable::forSchool($this->school)->withCount('slots')->latest()->get(), 'years' => AcademicYear::forSchool($this->school)->get(), 'classes' => AcademicClass::forSchool($this->school)->get(), 'sections' => Section::forSchool($this->school)->get(), 'assignments' => TeacherAssignment::query()->where('school_id', $this->school->id)->with(['teacher', 'subjectAssignment.subject', 'academicClass', 'section'])->get()]);
     }
 }

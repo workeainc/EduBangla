@@ -1,1 +1,1 @@
-<div><h1>My timetable</h1>@foreach ($slots as $slot)<div>{{ $slot->weekday }} {{ $slot->starts_at }}–{{ $slot->ends_at }}</div>@endforeach</div>
+<div><h1>My timetable</h1>@forelse ($slots as $slot)<div>{{ $slot->weekday }} {{ $slot->starts_at }}–{{ $slot->ends_at }} — {{ data_get($slot->snapshot, 'subject.name', 'Subject') }} — {{ data_get($slot->snapshot, 'teacher.name', 'Teacher') }}</div>@empty <p>No published timetable slots.</p>@endforelse</div>
