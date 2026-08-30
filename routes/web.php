@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AttendanceReportController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\SchoolAccessController;
 use App\Livewire\Academic\StudentTimetable;
 use App\Livewire\Academic\TeacherTimetable;
 use App\Livewire\Admin\AttendanceCorrections;
@@ -44,13 +46,19 @@ use App\Models\TeacherAssignment;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', fn () => auth()->check() ? redirect()->route('schools.index') : view('welcome'))->name('home');
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('/login', [AuthenticatedSessionController::class, 'store'])->middleware('throttle:6,1');
+});
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth')->name('logout');
+Route::middleware('auth')->group(function () {
+    Route::get('/schools', [SchoolAccessController::class, 'index'])->name('schools.index');
+    Route::post('/schools/select', [SchoolAccessController::class, 'select'])->name('schools.select');
 });
 
-Route::get('/login', fn () => response('Login required', 401))->name('login');
-
 Route::middleware(['auth', 'tenant.context'])->group(function () {
+    Route::get('/schools/{school}/dashboard', [SchoolAccessController::class, 'dashboard'])->name('schools.dashboard');
     Route::get('/schools/{school}', function (School $school) {
         Gate::authorize('view', $school);
 

@@ -1,7 +1,7 @@
 # Authentication & Operator Access Foundation — Discovery
 
-**Status:** Discovery complete; implementation not authorized  
-**Baseline:** `58c73e1` on `codex/phase-5h-academic-timetable`  
+**Status:** Implementation complete; bounded session/operator access only
+**Baseline:** `58c73e1` on `codex/authentication-operator-access`
 **Relationship:** Separate identity/access track; not Phase 5I and not a new business domain.
 
 ## Purpose
