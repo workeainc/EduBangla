@@ -80,13 +80,13 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
 
         return view('admin.profile', ['title' => 'Staff profile', 'person' => $staff, 'school' => $school]);
     })->middleware('school.admin')->name('admin.staff.profile');
-    Route::get('schools/{school}/teacher/assignments', MyAssignments::class)->name('teacher.assignments');
-    Route::get('schools/{school}/teacher/profile', MyAssignments::class)->name('teacher.profile');
-    Route::get('schools/{school}/teacher/attendance', AttendanceManagement::class)->name('teacher.attendance')->middleware('teacher');
-    Route::get('schools/{school}/teacher/exams', TeacherExams::class)->name('teacher.exams')->middleware('teacher');
-    Route::get('schools/{school}/teacher/exams/{exam}/marks', ExamMarks::class)->name('teacher.exams.marks')->middleware('teacher');
-    Route::get('schools/{school}/teacher/results', TeacherResults::class)->name('teacher.results')->middleware('teacher');
-    Route::get('schools/{school}/teacher/report-cards', TeacherReportCards::class)->name('teacher.report-cards')->middleware('teacher');
+    Route::get('schools/{school}/teacher/assignments', MyAssignments::class)->name('teacher.assignments')->middleware('school.role:teacher');
+    Route::get('schools/{school}/teacher/profile', MyAssignments::class)->name('teacher.profile')->middleware('school.role:teacher');
+    Route::get('schools/{school}/teacher/attendance', AttendanceManagement::class)->name('teacher.attendance')->middleware('school.role:teacher');
+    Route::get('schools/{school}/teacher/exams', TeacherExams::class)->name('teacher.exams')->middleware('school.role:teacher');
+    Route::get('schools/{school}/teacher/exams/{exam}/marks', ExamMarks::class)->name('teacher.exams.marks')->middleware('school.role:teacher');
+    Route::get('schools/{school}/teacher/results', TeacherResults::class)->name('teacher.results')->middleware('school.role:teacher');
+    Route::get('schools/{school}/teacher/report-cards', TeacherReportCards::class)->name('teacher.report-cards')->middleware('school.role:teacher');
     Route::middleware('student')->group(function () {
         Route::get('schools/{school}/student/exams', StudentExams::class)->name('student.exams');
         Route::get('schools/{school}/student/exams/{exam}', StudentExams::class)->name('student.exams.show');
@@ -133,7 +133,7 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
     Route::get('schools/{school}/admin/promotions/create', AdminPromotions::class)->name('admin.promotions.create')->middleware('school.admin');
     Route::get('schools/{school}/admin/promotions/{promotion}', AdminPromotions::class)->name('admin.promotions.show')->middleware('school.admin');
     Route::get('schools/{school}/admin/promotions/{promotion}/edit', AdminPromotions::class)->name('admin.promotions.edit')->middleware('school.admin');
-    Route::get('schools/{school}/teacher/promotions', TeacherPromotions::class)->name('teacher.promotions')->middleware('teacher');
+    Route::get('schools/{school}/teacher/promotions', TeacherPromotions::class)->name('teacher.promotions')->middleware('school.role:teacher');
     Route::get('schools/{school}/student/promotions', StudentPromotions::class)->name('student.promotions')->middleware('student');
     Route::get('schools/{school}/admin/exams/{exam}/results', ResultManagement::class)->name('admin.exams.results')->middleware('school.admin');
     Route::get('schools/{school}/admin/exams/{exam}/marks/corrections', ExamMarkCorrections::class)->name('admin.exams.marks.corrections')->middleware('school.admin');

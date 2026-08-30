@@ -8,6 +8,7 @@ use App\Domain\Attendance\Actions\RecordAttendance;
 use App\Models\AttendanceSession;
 use App\Models\Enrollment;
 use App\Models\School;
+use App\Models\SchoolUser;
 use App\Models\Teacher;
 use App\Models\TeacherAssignment;
 use Illuminate\Support\Facades\Gate;
@@ -40,7 +41,7 @@ class Management extends Component
     public function mount(School $school): void
     {
         $this->school = $school;
-        $this->role = auth()->user()->hasRole('School Admin') ? 'admin' : 'teacher';
+        $this->role = SchoolUser::where(['school_id' => $school->id, 'user_id' => auth()->id(), 'role' => 'school-admin', 'status' => 'active'])->exists() ? 'admin' : 'teacher';
         $this->date = now()->toDateString();
         Gate::authorize('view', $school);
     }

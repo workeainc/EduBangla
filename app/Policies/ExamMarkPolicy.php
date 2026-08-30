@@ -16,6 +16,6 @@ class ExamMarkPolicy extends SchoolOwnedPolicy
 
     public function update(User $u, ExamMark $m): bool
     {
-        return $this->create($u, $m->school_id) && ($u->hasRole('School Admin') || Teacher::where('user_id', $u->id)->whereKey($m->teacher_id)->exists());
+        return $this->create($u, $m->school_id) && (SchoolUser::where(['school_id' => $m->school_id, 'user_id' => $u->id, 'role' => 'school-admin', 'status' => 'active'])->exists() || (SchoolUser::where(['school_id' => $m->school_id, 'user_id' => $u->id, 'role' => 'teacher', 'status' => 'active'])->exists() && Teacher::where('school_id', $m->school_id)->where('user_id', $u->id)->whereKey($m->teacher_id)->exists()));
     }
 }

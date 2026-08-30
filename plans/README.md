@@ -11,6 +11,7 @@ Phase 5G baseline. Execute it only after explicit implementation approval.
 | 001 | Establish a tenant-safe, immutable finance foundation | P1 | L | — | DONE |
 | 002 | Establish a tenant-safe, immutable in-app notice foundation | P1 | L | 001 / Phase 5F accepted | DONE — `cf01e26`; authenticated browser verification blocked |
 | 003 | Establish a tenant-safe academic timetable foundation | P1 | L | 002 / Phase 5G accepted | DONE — Phase 5H implementation; authenticated browser verification blocked |
+| 004 | Integration / Pilot Hardening | P0 | L | 001–003 accepted foundations | PROPOSED — discovery plan only; implementation not started |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) |
 | REJECTED (with one-line rationale).
