@@ -12,6 +12,7 @@ Phase 5G baseline. Execute it only after explicit implementation approval.
 | 002 | Establish a tenant-safe, immutable in-app notice foundation | P1 | L | 001 / Phase 5F accepted | DONE — `cf01e26`; authenticated browser verification blocked |
 | 003 | Establish a tenant-safe academic timetable foundation | P1 | L | 002 / Phase 5G accepted | DONE — Phase 5H implementation; authenticated browser verification blocked |
 | 004 | Integration / Pilot Hardening | P0 | L | 001–003 accepted foundations | IN PROGRESS — authorization/workflow/recovery/audit/docs/timetable gates completed; browser/delivery pending |
+| 005 | Authentication & Operator Access Foundation — Discovery | P0 | M | Plan 004 validation boundary; ADR 0002 | PROPOSED — discovery complete; implementation not authorized |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) |
 | REJECTED (with one-line rationale).
