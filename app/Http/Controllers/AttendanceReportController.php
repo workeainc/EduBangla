@@ -41,6 +41,15 @@ class AttendanceReportController extends Controller
         return $filters;
     }
 
+    private function options(School $school): array
+    {
+        return [
+            'years' => \App\Models\AcademicYear::forSchool($school)->orderBy('name')->get(),
+            'classes' => \App\Models\AcademicClass::forSchool($school)->orderBy('sort_order')->get(),
+            'sections' => Section::forSchool($school)->with('academicClass')->orderBy('name')->get(),
+        ];
+    }
+
     public function daily(Request $request, School $school)
     {
         $this->school($school);
@@ -56,7 +65,7 @@ class AttendanceReportController extends Controller
             $q->whereHas('session', fn ($x) => $x->where('section_id', $filters['section_id']));
         } $rows = $q->get();
 
-        return view('attendance.reports.daily', compact('school', 'rows'));
+        return view('attendance.reports.daily', compact('school', 'rows') + $this->options($school));
     }
 
     public function monthly(Request $request, School $school)
@@ -70,10 +79,12 @@ class AttendanceReportController extends Controller
             $a = $aggregates->get($s->id) ?? (object) ['present' => 0, 'absent' => 0, 'late' => 0, 'excused' => 0, 'total' => 0];
             $d = (int) $a->total;
 
-            return compact('s', 'a', 'd');
+            $percentage = $d ? round((((int) $a->present + (int) $a->late) / $d) * 100, 2) : 0;
+
+            return compact('s', 'a', 'd', 'percentage');
         });
 
-        return view('attendance.reports.monthly', compact('school', 'rows', 'month'));
+        return view('attendance.reports.monthly', compact('school', 'rows', 'month') + $this->options($school));
     }
 
     public function class(Request $request, School $school)
@@ -85,10 +96,12 @@ class AttendanceReportController extends Controller
             $a = $aggregates->get($s->id) ?? (object) ['present' => 0, 'absent' => 0, 'late' => 0, 'excused' => 0, 'total' => 0];
             $d = (int) $a->total;
 
-            return compact('s', 'a', 'd');
+            $percentage = $d ? round((((int) $a->present + (int) $a->late) / $d) * 100, 2) : 0;
+
+            return compact('s', 'a', 'd', 'percentage');
         });
 
-        return view('attendance.reports.class', compact('school', 'rows'));
+        return view('attendance.reports.class', compact('school', 'rows') + $this->options($school));
     }
 
     public function student(School $school, Student $student)
