@@ -30,6 +30,11 @@ class Timetables extends Component
 
     public array $slots = [];
 
+    public string $message = '';
+
+    public function updatedAcademicYearId(): void { $this->class_id = $this->section_id = null; }
+    public function updatedClassId(): void { $this->section_id = null; }
+
     public function addSlot(): void
     {
         $this->slots[] = ['teacher_assignment_id' => '', 'subject_assignment_id' => '', 'weekday' => 0, 'starts_at' => '09:00', 'ends_at' => '10:00'];
@@ -62,16 +67,19 @@ class Timetables extends Component
     {
         $this->validate(['name' => 'required|string|max:120', 'academic_year_id' => 'required|integer', 'class_id' => 'required|integer', 'section_id' => 'required|integer', 'slots' => 'array', 'slots.*.teacher_assignment_id' => 'required|integer', 'slots.*.subject_assignment_id' => 'required|integer', 'slots.*.weekday' => 'required|integer', 'slots.*.starts_at' => 'required|string', 'slots.*.ends_at' => 'required|string']);
         $this->timetable = app(SaveTimetableDraft::class)->handle(auth()->user(), $this->school->id, ['name' => $this->name, 'academic_year_id' => $this->academic_year_id, 'class_id' => $this->class_id, 'section_id' => $this->section_id, 'slots' => $this->slots], $this->timetable?->id);
+        $this->message = 'Timetable draft saved.';
     }
 
     public function publish(int $id): void
     {
         $this->timetable = app(PublishTimetable::class)->handle(auth()->user(), $this->school->id, $id);
+        $this->message = 'Timetable published.';
     }
 
     public function archive(int $id): void
     {
         $this->timetable = app(ArchiveTimetable::class)->handle(auth()->user(), $this->school->id, $id);
+        $this->message = 'Timetable archived.';
     }
 
     public function render()
