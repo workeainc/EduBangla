@@ -1,16 +1,1 @@
-<div class="space-y-6">
-    <h1 class="text-2xl font-semibold">Assigned results</h1>
-    @forelse ($results as $result)
-        <section class="rounded border p-4">
-            <h2 class="font-medium">{{ $result->exam->name }} — {{ $result->student->name }}</h2>
-            <p class="text-sm text-gray-600">Status: {{ ucfirst($result->status) }} · {{ $result->percentage }}%</p>
-            <table class="mt-3 w-full text-sm"><tbody>
-                @foreach ($result->items as $item)
-                    <tr><td>{{ $item->subject->name }}</td><td>{{ $item->obtained_marks }}/{{ $item->maximum_marks }}</td></tr>
-                @endforeach
-            </tbody></table>
-        </section>
-    @empty
-        <p>No assigned result records are available.</p>
-    @endforelse
-</div>
+<div class="space-y-6"><x-ui.breadcrumbs :items="[['label' => 'My results']]" /><x-ui.page-header title="Assigned results" description="Results are visible only for your authorized examination assignments." />@forelse($results as $result)<x-ui.card :title="$result->exam?->name.' · '.trim($result->student?->first_name.' '.$result->student?->last_name)"><div class="mb-4 flex flex-wrap gap-3"><x-ui.status-badge :status="$result->status" /><span class="text-sm text-slate-600">{{ $result->percentage }}% · GPA {{ $result->gpa ?? '—' }}</span></div><x-ui.data-table caption="Subject marks"><thead><tr><th>Subject</th><th>Marks</th></tr></thead><tbody>@foreach($result->items as $item)<tr><td data-label="Subject">{{ $item->subject?->name }}</td><td data-label="Marks">{{ $item->obtained_marks }}/{{ $item->maximum_marks }}</td></tr>@endforeach</tbody></x-ui.data-table></x-ui.card>@empty<x-ui.empty-state title="No assigned results" message="No locked or published result records are available for your assignments." />@endforelse</div>
