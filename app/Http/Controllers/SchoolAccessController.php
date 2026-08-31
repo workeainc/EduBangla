@@ -47,9 +47,14 @@ class SchoolAccessController extends Controller
 
         $links = match ($membership->role) {
             'school-admin' => [
+                'Academic setup' => route('admin.class-groups', $school),
+                'Teachers & staff' => route('admin.teachers', $school),
                 'Timetable' => route('admin.timetables', $school),
                 'Attendance' => route('admin.attendance', $school),
                 'Exams' => route('admin.exams', $school),
+                'Results' => route('admin.results', $school),
+                'Report cards' => route('admin.report-cards', $school),
+                'Promotion' => route('admin.promotions', $school),
                 'Finance' => route('admin.finance', $school),
                 'Notices' => route('admin.notices', $school),
             ],
@@ -72,7 +77,11 @@ class SchoolAccessController extends Controller
         return [
             'My timetable' => route('teacher.timetable', $school),
             'My assignments' => route('teacher.assignments', $school),
+            'Attendance' => route('teacher.attendance', $school),
             'Exams' => route('teacher.exams', $school),
+            'Results' => route('teacher.results', $school),
+            'Report cards' => route('teacher.report-cards', $school),
+            'Notices' => route('teacher.notices', $school),
         ];
     }
 
@@ -83,8 +92,11 @@ class SchoolAccessController extends Controller
 
         return [
             'My timetable' => route('student.timetable', $school),
+            'Exams' => route('student.exams', $school),
             'Results' => route('student.results', $school),
+            'Report cards' => route('student.report-cards', $school),
             'Finance' => route('student.finance', $school),
+            'Notices' => route('student.notices', $school),
         ];
     }
 }

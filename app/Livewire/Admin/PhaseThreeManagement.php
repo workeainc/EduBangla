@@ -78,6 +78,28 @@ class PhaseThreeManagement extends Component
         $record->update(['status' => $record->status === 'active' ? 'inactive' : 'active']);
     }
 
+    public function updatedFormAcademicYearId($value): void
+    {
+        $this->form['class_id'] = null;
+        $this->form['section_id'] = null;
+        $this->form['group_id'] = null;
+        $this->form['subject_id'] = null;
+        $this->form['subject_assignment_id'] = null;
+    }
+
+    public function updatedFormClassId($value): void
+    {
+        $this->form['section_id'] = null;
+        $this->form['group_id'] = null;
+        $this->form['subject_id'] = null;
+        $this->form['subject_assignment_id'] = null;
+    }
+
+    public function updatedFormSubjectId($value): void
+    {
+        $this->form['subject_assignment_id'] = null;
+    }
+
     public function render()
     {
         $s = $this->activeSchoolId();
@@ -86,9 +108,9 @@ class PhaseThreeManagement extends Component
             'teachers' => Teacher::forSchool($s)->get(),'staff' => Staff::forSchool($s)->get(),'class-groups' => ClassGroup::with(['academicClass', 'group'])->where('school_id', $s)->get(),'subject-assignments' => SubjectAssignment::with(['academicYear', 'academicClass', 'subject', 'group'])->where('school_id', $s)->when($this->filters['academic_year_id'] ?? null, fn ($q, $v) => $q->where('academic_year_id', $v))->when($this->filters['class_id'] ?? null, fn ($q, $v) => $q->where('class_id', $v))->when($this->filters['subject_id'] ?? null, fn ($q, $v) => $q->where('subject_id', $v))->when($this->filters['group_id'] ?? null, fn ($q, $v) => $q->where('group_scope', $v))->get(),'teacher-assignments' => TeacherAssignment::with(['teacher', 'academicYear', 'academicClass', 'section', 'subjectAssignment.subject', 'group'])->where('school_id', $s)->when($this->filters['academic_year_id'] ?? null, fn ($q, $v) => $q->where('academic_year_id', $v))->when($this->filters['teacher_id'] ?? null, fn ($q, $v) => $q->where('teacher_id', $v))->when($this->filters['class_id'] ?? null, fn ($q, $v) => $q->where('class_id', $v))->when($this->filters['section_id'] ?? null, fn ($q, $v) => $q->where('section_id', $v))->when($this->filters['group_id'] ?? null, fn ($q, $v) => $q->where('group_scope', $v))->when($this->filters['subject_id'] ?? null, fn ($q, $v) => $q->whereHas('subjectAssignment', fn ($q) => $q->where('subject_id', $v)))->get(),default => collect()
         };
 
-        $base['sections'] = isset($this->form['class_id']) ? Section::forSchool($s)->where('class_id', $this->form['class_id'])->get() : collect();
-        $base['groups'] = isset($this->form['class_id']) ? AcademicGroup::forSchool($s)->whereIn('id', ClassGroup::where('school_id', $s)->where('class_id', $this->form['class_id'])->pluck('group_id'))->get() : collect();
-        $base['subjectAssignments'] = isset($this->form['class_id'], $this->form['academic_year_id']) ? SubjectAssignment::where('school_id', $s)->where('class_id', $this->form['class_id'])->where('academic_year_id', $this->form['academic_year_id'])->get() : collect();
+        $base['sections'] = isset($this->form['class_id']) ? Section::forSchool($s)->where('class_id', $this->form['class_id'])->orderBy('name')->get() : collect();
+        $base['groups'] = isset($this->form['class_id']) ? AcademicGroup::forSchool($s)->whereIn('id', ClassGroup::where('school_id', $s)->where('class_id', $this->form['class_id'])->pluck('group_id'))->orderBy('name')->get() : collect();
+        $base['subjectAssignments'] = isset($this->form['class_id'], $this->form['academic_year_id']) ? SubjectAssignment::with(['subject', 'group'])->where('school_id', $s)->where('class_id', $this->form['class_id'])->where('academic_year_id', $this->form['academic_year_id'])->when($this->form['subject_id'] ?? null, fn ($q, $v) => $q->where('subject_id', $v))->orderBy('id')->get() : collect();
 
         return view('livewire.admin.phase-three-management', $base);
     }

@@ -1,0 +1,3 @@
+@props(['label' => null, 'error' => null, 'hint' => null, 'name' => null, 'required' => false])
+@php($id = $attributes->get('id', $name ?? 'input-'.uniqid()))
+<div class="ui-field"><label for="{{ $id }}" class="ui-label">{{ $label }} @if($required)<span aria-hidden="true">*</span>@endif</label><input id="{{ $id }}" name="{{ $name }}" {{ $attributes->except(['id','class'])->merge(['class' => 'ui-input']) }} @required($required) aria-describedby="{{ $error ? $id.'-error' : ($hint ? $id.'-hint' : '') }}" @if($error) aria-invalid="true" @endif>@if($hint)<p id="{{ $id }}-hint" class="ui-hint">{{ $hint }}</p>@endif @if($error)<p id="{{ $id }}-error" class="ui-error" role="alert">{{ $error }}</p>@endif</div>

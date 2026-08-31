@@ -1,0 +1,2 @@
+@props(['items' => []])
+<nav {{ $attributes->merge(['class' => 'mb-4']) }} aria-label="Breadcrumb"><ol class="flex flex-wrap items-center gap-2 text-sm text-slate-500">@foreach($items as $item)<li class="flex items-center gap-2">@if(!$loop->first)<span aria-hidden="true">/</span>@endif @if(isset($item['url']))<a href="{{ $item['url'] }}" class="hover:text-indigo-700">{{ $item['label'] }}</a>@else<span aria-current="page" class="font-medium text-slate-700">{{ $item['label'] }}</span>@endif</li>@endforeach</ol></nav>

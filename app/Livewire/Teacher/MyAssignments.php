@@ -15,6 +15,6 @@ class MyAssignments extends Component
         abort_unless($school && School::find($school)?->hasActiveMember(auth()->user()), 403);
         $teacher = Teacher::where('school_id', $school)->where('user_id', auth()->id())->firstOrFail();
 
-        return view('livewire.teacher.my-assignments', ['teacher' => $teacher, 'assignments' => TeacherAssignment::where('school_id', $school)->where('teacher_id', $teacher->id)->get()]);
+        return view('livewire.teacher.my-assignments', ['teacher' => $teacher, 'assignments' => TeacherAssignment::with(['academicYear', 'academicClass', 'section', 'group', 'subjectAssignment.subject'])->where('school_id', $school)->where('teacher_id', $teacher->id)->orderByDesc('academic_year_id')->get()]);
     }
 }

@@ -1,0 +1,2 @@
+@props(['title' => null, 'subtitle' => null])
+<section {{ $attributes->merge(['class' => 'ui-card']) }} @if($title) aria-label="{{ $title }}" @endif>@if($title)<div class="mb-4 flex items-start justify-between gap-4"><div><h2 class="text-base font-semibold text-slate-900">{{ $title }}</h2>@if($subtitle)<p class="mt-1 text-sm text-slate-500">{{ $subtitle }}</p>@endif</div>{{ $actions ?? '' }}</div>@endif{{ $slot }}</section>

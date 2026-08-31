@@ -36,6 +36,7 @@ class AuthenticationOperatorAccessTest extends TestCase
         $this->assertAuthenticatedAs($user);
         $this->assertSame($school->id, session('active_school_id'));
         $this->assertNotSame($before, session()->getId());
+        $this->get(route('schools.dashboard', $school))->assertOk()->assertSee(['Academic setup', 'Teachers & staff', 'Attendance', 'Exams', 'Results', 'Report cards', 'Promotion', 'Finance', 'Notices', 'Timetable']);
     }
 
     public function test_invalid_credentials_do_not_authenticate_a_user(): void
@@ -102,7 +103,7 @@ class AuthenticationOperatorAccessTest extends TestCase
 
         Teacher::factory()->create(['school_id' => $school->id, 'user_id' => $user->id]);
 
-        $this->actingAs($user)->get(route('schools.dashboard', $school))->assertOk()->assertSee('My timetable');
+        $this->actingAs($user)->get(route('schools.dashboard', $school))->assertOk()->assertSee(['My timetable', 'Attendance', 'Exams', 'Results', 'Report cards', 'Notices']);
     }
 
     public function test_student_requires_a_matching_active_profile_and_cannot_enter_a_foreign_school(): void
@@ -113,7 +114,7 @@ class AuthenticationOperatorAccessTest extends TestCase
         $this->actingAs($user)->get(route('schools.dashboard', $school))->assertForbidden();
         Student::factory()->create(['school_id' => $school->id, 'user_id' => $user->id]);
 
-        $this->actingAs($user)->get(route('schools.dashboard', $school))->assertOk()->assertSee('Results');
+        $this->actingAs($user)->get(route('schools.dashboard', $school))->assertOk()->assertSee(['My timetable', 'Exams', 'Results', 'Report cards', 'Finance', 'Notices']);
         $this->actingAs($user)->get(route('schools.dashboard', $foreign))->assertForbidden();
     }
 
