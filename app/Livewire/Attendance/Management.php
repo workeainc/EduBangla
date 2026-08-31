@@ -68,9 +68,11 @@ class Management extends Component
         foreach ($this->statuses as $studentId => $status) {
             $e = Enrollment::where(['school_id' => $this->school->id, 'student_id' => $studentId, 'academic_year_id' => $a->academic_year_id, 'class_id' => $a->class_id, 'section_id' => $a->section_id])->firstOrFail();
             $rows[] = ['student_id' => $studentId, 'enrollment_id' => $e->id, 'status' => $status];
-        } if ($rows && ! $session->attendances()->exists()) {
+        }
+        if ($rows) {
             (new RecordAttendance)->handle($session, $rows, auth()->id());
-        } $this->sessionId = $session->id;
+        }
+        $this->sessionId = $session->id;
         $this->message = 'উপস্থিতি সংরক্ষণ হয়েছে।';
     }
 

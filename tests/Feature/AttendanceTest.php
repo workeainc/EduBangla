@@ -96,6 +96,45 @@ class AttendanceTest extends TestCase
         app(CreateAttendanceSession::class)->handle($data);
     }
 
+    public function test_open_attendance_rows_are_updated_without_duplicates(): void
+    {
+        $f = $this->fixture();
+        $session = app(CreateAttendanceSession::class)->handle(['school_id' => $f['s']->id, 'academic_year_id' => $f['y']->id, 'class_id' => $f['c']->id, 'section_id' => $f['sec']->id, 'teacher_id' => $f['t']->id, 'teacher_assignment_id' => $f['ta']->id, 'attendance_date' => '2026-09-03', 'created_by' => $f['u']->id]);
+        $first = $f['enrollments'][0];
+        $second = $f['enrollments'][1];
+        app(RecordAttendance::class)->handle($session, [
+            ['student_id' => $first->student_id, 'enrollment_id' => $first->id, 'status' => 'present'],
+            ['student_id' => $second->student_id, 'enrollment_id' => $second->id, 'status' => 'late'],
+        ], $f['u']->id);
+
+        app(RecordAttendance::class)->handle($session, [
+            ['student_id' => $first->student_id, 'enrollment_id' => $first->id, 'status' => 'absent'],
+            ['student_id' => $second->student_id, 'enrollment_id' => $second->id, 'status' => 'late'],
+        ], $f['u']->id);
+
+        $this->assertDatabaseCount('student_attendance', 2);
+        $this->assertDatabaseHas('student_attendance', ['attendance_session_id' => $session->id, 'student_id' => $first->student_id, 'status' => 'absent']);
+        $this->assertDatabaseHas('student_attendance', ['attendance_session_id' => $session->id, 'student_id' => $second->student_id, 'status' => 'late']);
+    }
+
+    public function test_open_attendance_update_rolls_back_when_any_row_is_invalid(): void
+    {
+        $f = $this->fixture();
+        $session = app(CreateAttendanceSession::class)->handle(['school_id' => $f['s']->id, 'academic_year_id' => $f['y']->id, 'class_id' => $f['c']->id, 'section_id' => $f['sec']->id, 'teacher_id' => $f['t']->id, 'teacher_assignment_id' => $f['ta']->id, 'attendance_date' => '2026-09-04', 'created_by' => $f['u']->id]);
+        $first = $f['enrollments'][0];
+        app(RecordAttendance::class)->handle($session, [['student_id' => $first->student_id, 'enrollment_id' => $first->id, 'status' => 'present']], $f['u']->id);
+
+        try {
+            app(RecordAttendance::class)->handle($session, [
+                ['student_id' => $first->student_id, 'enrollment_id' => $first->id, 'status' => 'absent'],
+                ['student_id' => $f['enrollments'][1]->student_id, 'enrollment_id' => $f['enrollments'][1]->id, 'status' => 'not-a-status'],
+            ], $f['u']->id);
+            $this->fail('Invalid batch must reject.');
+        } catch (ValidationException) {
+        }
+        $this->assertDatabaseHas('student_attendance', ['attendance_session_id' => $session->id, 'student_id' => $first->student_id, 'status' => 'present']);
+    }
+
     public function test_admin_correction_is_audited_after_finalization(): void
     {
         $f = $this->fixture();
