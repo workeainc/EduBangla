@@ -25,6 +25,8 @@ class Notices extends Component
 
     public array $audiences = [['type' => 'school']];
 
+    public string $message = '';
+
     public function mount(School $school, ?Notice $notice = null): void
     {
         $this->school = $school;
@@ -44,16 +46,19 @@ class Notices extends Component
     {
         $this->validate(['title' => 'required|string|max:255', 'body' => 'required|string', 'audiences' => 'required|array|min:1']);
         $this->notice = app(SaveNoticeDraft::class)->handle(auth()->user(), $this->school->id, ['title' => $this->title, 'body' => $this->body, 'audiences' => $this->audiences], $this->notice?->id);
+        $this->message = 'Notice draft saved.';
     }
 
     public function publish(int $noticeId): void
     {
         $this->notice = app(PublishNotice::class)->handle(auth()->user(), $this->school->id, $noticeId);
+        $this->message = 'Notice published.';
     }
 
     public function withdraw(int $noticeId): void
     {
         $this->notice = app(WithdrawNotice::class)->handle(auth()->user(), $this->school->id, $noticeId);
+        $this->message = 'Notice withdrawn.';
     }
 
     public function render()

@@ -1,20 +1,7 @@
-<div>
-    <h1>Notices</h1>
-    <form wire:submit="saveDraft">
-        <input wire:model="title" placeholder="Title">
-        <textarea wire:model="body" placeholder="Message"></textarea>
-        <select wire:model="audiences.0.type"><option value="school">School</option><option value="role">Role</option><option value="class_section">Class and section</option></select>
-        <input wire:model="audiences.0.role" placeholder="Role for role audience">
-        <input wire:model="audiences.0.academic_year_id" placeholder="Academic year ID">
-        <input wire:model="audiences.0.class_id" placeholder="Class ID">
-        <input wire:model="audiences.0.section_id" placeholder="Section ID">
-        <button type="submit">Save draft</button>
-    </form>
-    @foreach ($notices as $item)
-        <section wire:key="notice-{{ $item->id }}">
-            <a href="{{ route('admin.notices.show', [$school, $item]) }}">{{ $item->title }}</a> — {{ $item->status }} ({{ $item->deliveries_count }} deliveries)
-            @if ($item->status === 'draft') <button wire:click="publish({{ $item->id }})">Publish</button> @endif
-            @if ($item->status === 'published') <button wire:click="withdraw({{ $item->id }})">Withdraw</button> @endif
-        </section>
-    @endforeach
+<div class="space-y-6">
+    <x-ui.breadcrumbs :items="[['label' => 'Notices']]" />
+    <x-ui.page-header title="Notices" description="Author, publish, and withdraw tenant-scoped in-app notices." />
+    @if($message)<x-ui.alert type="success">{{ $message }}</x-ui.alert>@endif @if($errors->any())<x-ui.alert type="error">{{ $errors->first() }}</x-ui.alert>@endif
+    <x-ui.card :title="$notice && $notice->status !== 'draft' ? 'Published notice snapshot' : 'Create notice draft'"><form wire:submit="saveDraft" class="space-y-4"><x-ui.input label="Title" wire:model="title" :error="$errors->first('title')" :disabled="$notice && $notice->status !== 'draft'" required /><x-ui.textarea label="Message" wire:model="body" :error="$errors->first('body')" :disabled="$notice && $notice->status !== 'draft'" required /><fieldset class="grid gap-4 rounded-lg border border-slate-200 p-4 sm:grid-cols-2"><legend class="px-2 text-sm font-semibold">Audience</legend><x-ui.select label="Audience type" wire:model.live="audiences.0.type" :disabled="$notice && $notice->status !== 'draft'" required><option value="school">Entire school</option><option value="role">Specific role</option><option value="class_section">Class and section</option></x-ui.select>@if(($audiences[0]['type'] ?? 'school') === 'role')<x-ui.select label="Recipient role" wire:model="audiences.0.role" required><option value="">Choose role</option><option value="teacher">Teachers</option><option value="student">Students</option><option value="staff">Staff</option></x-ui.select>@elseif(($audiences[0]['type'] ?? null) === 'class_section')<x-ui.select label="Academic year" wire:model="audiences.0.academic_year_id" required><option value="">Choose year</option>@foreach($years as $year)<option value="{{ $year->id }}">{{ $year->name }}</option>@endforeach</x-ui.select><x-ui.select label="Class" wire:model="audiences.0.class_id" required><option value="">Choose class</option>@foreach($classes as $class)<option value="{{ $class->id }}">{{ $class->name }}</option>@endforeach</x-ui.select><x-ui.select label="Section" wire:model="audiences.0.section_id" required><option value="">Choose section</option>@foreach($sections as $section)<option value="{{ $section->id }}">{{ $section->name }}</option>@endforeach</x-ui.select>@endif</fieldset>@if(!$notice || $notice->status === 'draft')<x-ui.button type="submit" loading="saveDraft">Save draft</x-ui.button>@endif</form></x-ui.card>
+    <x-ui.card title="Notice register"><x-ui.data-table caption="School notices"><thead><tr><th>Notice</th><th>Audience</th><th>Recipients</th><th>Status</th><th>Action</th></tr></thead><tbody>@forelse($notices as $item)<tr wire:key="notice-{{ $item->id }}"><td data-label="Notice"><a href="{{ route('admin.notices.show', [$school, $item]) }}" class="font-semibold text-indigo-700 hover:underline">{{ $item->title }}</a><span class="block max-w-md truncate text-xs text-slate-500">{{ $item->body }}</span></td><td data-label="Audience">{{ $item->audiences->first()?->type === 'school' ? 'Entire school' : ucfirst(str_replace('_', ' ', $item->audiences->first()?->type ?? '—')) }}</td><td data-label="Recipients">{{ $item->deliveries_count }}</td><td data-label="Status"><x-ui.status-badge :status="$item->status" /></td><td data-label="Action">@if($item->status === 'draft')<x-ui.button wire:click="publish({{ $item->id }})" loading="publish">Publish</x-ui.button>@elseif($item->status === 'published')<x-ui.confirm-dialog title="Withdraw notice?" message="Withdrawn notices remain in history and cannot be retargeted." confirm-label="Withdraw" event="withdraw({{ $item->id }})">Withdraw</x-ui.confirm-dialog>@else<span class="text-sm text-slate-500">Read-only</span>@endif</td></tr>@empty<tr><td colspan="5"><x-ui.empty-state title="No notices" message="Create a draft to begin the notice workflow." /></td></tr>@endforelse</tbody></x-ui.data-table></x-ui.card>
 </div>

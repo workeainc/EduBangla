@@ -16,6 +16,8 @@ class Inbox extends Component
 
     public ?NoticeDelivery $delivery = null;
 
+    public string $message = '';
+
     public function mount(School $school, string $role, ?NoticeDelivery $delivery = null): void
     {
         $this->school = $school;
@@ -30,6 +32,7 @@ class Inbox extends Component
     public function markRead(int $deliveryId): void
     {
         $this->delivery = app(MarkNoticeDeliveryRead::class)->handle(auth()->user(), $this->school->id, $this->role, $deliveryId);
+        $this->message = 'Notice marked as read.';
     }
 
     public function render()

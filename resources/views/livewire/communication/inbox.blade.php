@@ -1,6 +1,7 @@
 <div class="space-y-6">
     <x-ui.breadcrumbs :items="[['label' => 'Notices']]" />
     <x-ui.page-header title="Notices" description="Messages published to your school role." />
+    @if($message)<x-ui.alert type="success">{{ $message }}</x-ui.alert>@endif
     @if($delivery)<x-ui.snapshot-card :title="$delivery->notice->title" :status="$delivery->notice->status" :meta="'Delivered '.$delivery->delivered_at?->format('M j, Y')">{!! nl2br(e($delivery->notice->body)) !!}</x-ui.snapshot-card>@endif
     <x-ui.card title="Inbox"><x-ui.data-table caption="Notice inbox"><thead><tr><th>Notice</th><th>Status</th><th>Delivered</th><th>Read state</th><th></th></tr></thead><tbody>@forelse($deliveries as $item)<tr wire:key="delivery-{{ $item->id }}"><td data-label="Notice"><a href="{{ route($role.'.notices.show', [$school, $item]) }}" class="font-semibold text-indigo-700 hover:underline">{{ $item->notice->title }}</a></td><td data-label="Status"><x-ui.status-badge :status="$item->notice->status" /></td><td data-label="Delivered">{{ $item->delivered_at?->format('M j, Y') }}</td><td data-label="Read state">{{ $item->read_at ? 'Read' : 'Unread' }}</td><td data-label="Action">@if(!$item->read_at)<x-ui.button variant="secondary" wire:click="markRead({{ $item->id }})" loading="markRead">Mark read</x-ui.button>@endif</td></tr>@empty<tr><td colspan="5"><x-ui.empty-state title="No notices" message="New notices published to teachers will appear here." /></td></tr>@endforelse</tbody></x-ui.data-table></x-ui.card>
 </div>
