@@ -16,6 +16,8 @@ use App\Models\Section;
 use App\Models\Student;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 class StudentEnrollment extends Component
@@ -53,8 +55,15 @@ class StudentEnrollment extends Component
         $this->section_id = $this->group_id = null;
     }
 
+    public function updatedGuardianMode(): void
+    {
+        $this->guardian_id = null;
+        $this->resetErrorBag('guardian_id');
+    }
+
     public function submit(): void
     {
+        $this->message = '';
         Gate::authorize('create', [Student::class, $this->school->id]);
         $this->validate([
             'student.student_code' => ['required', 'string', 'max:64'],
@@ -88,27 +97,39 @@ class StudentEnrollment extends Component
         Gate::authorize('create', [Guardian::class, $this->school->id]);
         Gate::authorize('create', [Enrollment::class, $this->school->id]);
 
-        $student = DB::transaction(function () {
-            $student = app(CreateStudent::class)->handle($this->school->id, $this->student);
-            $guardian = $this->guardianMode === 'existing'
-                ? Guardian::forSchool($this->school)->findOrFail($this->guardian_id)
-                : app(CreateGuardian::class)->handle($this->school->id, $this->guardian);
+        try {
+            $student = DB::transaction(function () {
+                $student = app(CreateStudent::class)->handle($this->school->id, $this->student);
+                $guardian = $this->guardianMode === 'existing'
+                    ? Guardian::forSchool($this->school)->findOrFail($this->guardian_id)
+                    : app(CreateGuardian::class)->handle($this->school->id, $this->guardian);
 
-            app(AttachGuardian::class)->handle($student, $guardian, $this->relationship_type, $this->is_primary);
-            app(CreateEnrollment::class)->handle([
-                'school_id' => $this->school->id,
-                'student_id' => $student->id,
-                'academic_year_id' => $this->academic_year_id,
-                'class_id' => $this->class_id,
-                'section_id' => $this->section_id,
-                'group_id' => $this->group_id,
-                'roll' => $this->roll,
-                'status' => 'active',
-                'enrolled_at' => now()->toDateString(),
-            ]);
+                app(AttachGuardian::class)->handle($student, $guardian, $this->relationship_type, $this->is_primary);
+                app(CreateEnrollment::class)->handle([
+                    'school_id' => $this->school->id,
+                    'student_id' => $student->id,
+                    'academic_year_id' => $this->academic_year_id,
+                    'class_id' => $this->class_id,
+                    'section_id' => $this->section_id,
+                    'group_id' => $this->group_id,
+                    'roll' => $this->roll,
+                    'status' => 'active',
+                    'enrolled_at' => now()->toDateString(),
+                ]);
 
-            return $student;
-        });
+                return $student;
+            });
+        } catch (ValidationException $e) {
+            foreach ($e->errors() as $key => $messages) {
+                foreach ($messages as $message) {
+                    $this->addError($key, $message);
+                }
+            }
+            return;
+        } catch (ModelNotFoundException) {
+            $this->addError('form', 'One or more selected records are no longer available in this school. Please review the selections and try again.');
+            return;
+        }
 
         $this->reset('student', 'guardian', 'guardian_id', 'academic_year_id', 'class_id', 'section_id', 'group_id', 'roll');
         $this->student['status'] = 'active';

@@ -74,9 +74,26 @@ class StudentEnrollmentWorkflowTest extends TestCase
             ->set('student.student_code', 'S-102')->set('student.first_name', 'C')
             ->set('guardianMode', 'existing')->set('guardian_id', $foreignGuardian->id)
             ->set('academic_year_id', $year->id)->set('class_id', $class->id)->set('section_id', $section->id)->set('roll', 1);
-        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
-        $component->call('submit');
+        $component->call('submit')->assertHasErrors('form');
         $this->assertDatabaseMissing('students', ['student_code' => 'S-102']);
+    }
+
+    public function test_admin_workspace_renders_human_readable_sections_and_empty_states(): void
+    {
+        [$school, $admin, $year, $class, $section] = $this->fixture();
+        $this->actingAs($admin)->withSession(['active_school_id' => $school->id]);
+
+        $this->get(route('admin.students.enrollment', $school))->assertOk()->assertSee(['Students & enrollment', 'Student details', 'Guardian', 'Academic year', $year->name, $class->name, $section->name, 'No students yet']);
+    }
+
+    public function test_dependent_academic_selections_clear_stale_values(): void
+    {
+        [$school, $admin, $year, $class, $section] = $this->fixture();
+        $this->actingAs($admin)->withSession(['active_school_id' => $school->id]);
+        $component = Livewire::test(StudentEnrollment::class, ['school' => $school])->set('academic_year_id', $year->id)->set('class_id', $class->id)->set('section_id', $section->id)->set('group_id', 99);
+
+        $component->set('academic_year_id', null)->assertSet('class_id', null)->assertSet('section_id', null)->assertSet('group_id', null);
+        $component->set('academic_year_id', $year->id)->set('class_id', $class->id)->set('section_id', $section->id)->set('group_id', 99)->set('class_id', null)->assertSet('section_id', null)->assertSet('group_id', null);
     }
 
     public function test_enrollment_failure_rolls_back_new_student_and_guardian(): void
