@@ -53,8 +53,12 @@ class Management extends Component
         $this->yearId = $a->academic_year_id;
         $this->classId = $a->class_id;
         $this->sectionId = $a->section_id;
-        $this->statuses = Enrollment::where('school_id', $this->school->id)->where('academic_year_id', $a->academic_year_id)->where('class_id', $a->class_id)->where('section_id', $a->section_id)->get()->mapWithKeys(fn ($e) => [$e->student_id => 'present'])->all();
-        $this->message = 'শিক্ষার্থীদের তালিকা প্রস্তুত হয়েছে।';
+        $session = AttendanceSession::where('school_id', $this->school->id)->where('teacher_assignment_id', $a->id)->whereDate('attendance_date', $this->date)->where('period', $this->period)->first();
+        $enrollments = Enrollment::with('student')->where('school_id', $this->school->id)->where('academic_year_id', $a->academic_year_id)->where('class_id', $a->class_id)->where('section_id', $a->section_id)->get();
+        $recorded = $session ? $session->attendances()->pluck('status', 'student_id') : collect();
+        $this->sessionId = $session?->id;
+        $this->statuses = $enrollments->mapWithKeys(fn ($e) => [$e->student_id => $recorded->get($e->student_id, 'present')])->all();
+        $this->message = $session?->isFinalized() ? 'Finalized attendance loaded. It is read-only.' : ($session ? 'Existing attendance session loaded.' : 'Student list is ready for a new attendance session.');
     }
 
     public function save(): void
@@ -62,7 +66,7 @@ class Management extends Component
         $this->validate(['assignmentId' => 'required', 'date' => 'required|date']);
         $a = $this->assignment();
         $teacher = $a->teacher;
-        $session = $this->sessionId ? AttendanceSession::where('school_id', $this->school->id)->findOrFail($this->sessionId) : (new CreateAttendanceSession)->handle(['school_id' => $this->school->id, 'academic_year_id' => $a->academic_year_id, 'class_id' => $a->class_id, 'section_id' => $a->section_id, 'teacher_id' => $teacher->id, 'teacher_assignment_id' => $a->id, 'attendance_date' => $this->date, 'period' => $this->period, 'created_by' => auth()->id()]);
+        $session = $this->sessionId ? AttendanceSession::where('school_id', $this->school->id)->where('teacher_assignment_id', $a->id)->findOrFail($this->sessionId) : (new CreateAttendanceSession)->handle(['school_id' => $this->school->id, 'academic_year_id' => $a->academic_year_id, 'class_id' => $a->class_id, 'section_id' => $a->section_id, 'teacher_id' => $teacher->id, 'teacher_assignment_id' => $a->id, 'attendance_date' => $this->date, 'period' => $this->period, 'created_by' => auth()->id()]);
         Gate::authorize('update', $session);
         $rows = [];
         foreach ($this->statuses as $studentId => $status) {
@@ -78,7 +82,7 @@ class Management extends Component
 
     public function finalize(): void
     {
-        $session = AttendanceSession::findOrFail($this->sessionId);
+        $session = AttendanceSession::where('school_id', $this->school->id)->findOrFail($this->sessionId);
         Gate::authorize('finalize', $session);
         (new FinalizeAttendance)->handle($session);
         $this->message = 'উপস্থিতি চূড়ান্ত হয়েছে; এখন এটি read-only।';
@@ -104,12 +108,13 @@ class Management extends Component
 
     public function render()
     {
-        $assignments = TeacherAssignment::with(['academicYear', 'academicClass', 'section', 'subjectAssignment.subject', 'teacher'])->where('school_id', $this->school->id)->when($this->role === 'teacher', function ($q) {
+        $assignments = TeacherAssignment::with(['academicYear', 'academicClass', 'section', 'group', 'subjectAssignment.subject', 'teacher'])->where('school_id', $this->school->id)->when($this->role === 'teacher', function ($q) {
             $t = Teacher::where('school_id', $this->school->id)->where('user_id', auth()->id())->first();
             $q->where('teacher_id', $t?->id ?? 0);
         })->get();
-        $students = $this->statuses;
+        $students = Enrollment::with('student')->where('school_id', $this->school->id)->whereIn('student_id', array_keys($this->statuses))->get()->keyBy('student_id');
+        $session = $this->sessionId ? AttendanceSession::where('school_id', $this->school->id)->find($this->sessionId) : null;
 
-        return view('livewire.attendance.management', compact('assignments', 'students'));
+        return view('livewire.attendance.management', compact('assignments', 'students', 'session'));
     }
 }

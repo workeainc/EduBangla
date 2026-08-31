@@ -5,11 +5,15 @@ namespace App\Policies;
 use App\Models\AttendanceSession;
 use App\Models\SchoolUser;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 
 class AttendanceSessionPolicy extends SchoolOwnedPolicy
 {
-    public function update(User $user, AttendanceSession $session): bool
+    public function update(User $user, Model $session): bool
     {
+        if (! $session instanceof AttendanceSession) {
+            return false;
+        }
         if ($session->isFinalized()) {
             return $this->hasRole($user, $session->school_id, 'school-admin');
         }
@@ -17,8 +21,11 @@ class AttendanceSessionPolicy extends SchoolOwnedPolicy
         return $this->hasRole($user, $session->school_id, 'school-admin') || ($this->hasRole($user, $session->school_id, 'teacher') && $session->teacher?->user_id === $user->id);
     }
 
-    public function finalize(User $user, AttendanceSession $session): bool
+    public function finalize(User $user, Model $session): bool
     {
+        if (! $session instanceof AttendanceSession) {
+            return false;
+        }
         return ! $session->isFinalized() && ($this->hasRole($user, $session->school_id, 'school-admin') || ($this->hasRole($user, $session->school_id, 'teacher') && $session->teacher?->user_id === $user->id));
     }
 
