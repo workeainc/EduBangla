@@ -13,6 +13,7 @@ use App\Models\AcademicYear;
 use App\Models\Enrollment;
 use App\Models\Promotion;
 use App\Models\School;
+use App\Models\Section;
 use App\Models\Student;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
@@ -36,6 +37,8 @@ class Promotions extends Component
     public $target_class_id;
 
     public $target_section_id;
+
+    public string $message = '';
 
     public function updatedStudentId(): void
     {
@@ -78,6 +81,7 @@ class Promotions extends Component
     {
         $p = Promotion::where('school_id', $this->school->id)->findOrFail($id);
         app(EvaluatePromotion::class)->handle($p, $this->school->id);
+        $this->message = 'Promotion evaluated successfully.';
     }
 
     public function save(): void
@@ -89,28 +93,40 @@ class Promotions extends Component
         } else {
             app(CreatePromotion::class)->handle($data, $this->school->id);
         }
+        $this->message = 'Promotion draft saved.';
     }
 
     public function approve($id)
     {
         $p = Promotion::where('school_id', $this->school->id)->findOrFail($id);
         app(ApprovePromotion::class)->handle($p, $this->school->id);
+        $this->message = 'Promotion approved.';
     }
 
     public function apply($id)
     {
         $p = Promotion::where('school_id', $this->school->id)->findOrFail($id);
         app(ApplyPromotion::class)->handle($p, $this->school->id);
+        $this->message = 'Promotion applied and source history preserved.';
     }
 
     public function cancel($id)
     {
         $p = Promotion::where('school_id', $this->school->id)->findOrFail($id);
         app(CancelPromotion::class)->handle($p, $this->school->id);
+        $this->message = 'Promotion cancelled.';
     }
 
     public function render()
     {
-        return view('livewire.admin.promotions', ['promotions' => Promotion::with(['student', 'targetClass', 'targetAcademicYear'])->where('school_id', $this->school->id)->latest()->get(), 'students' => Student::where('school_id', $this->school->id)->where('status', 'active')->get(), 'enrollments' => Enrollment::where('school_id', $this->school->id)->where('status', 'active')->when($this->student_id, fn ($q) => $q->where('student_id', $this->student_id))->get(), 'years' => AcademicYear::where('school_id', $this->school->id)->get(), 'classes' => AcademicClass::where('school_id', $this->school->id)->get()]);
+        $targetClassId = $this->target_class_id;
+        return view('livewire.admin.promotions', [
+            'promotions' => Promotion::with(['student', 'sourceEnrollment.academicYear', 'sourceEnrollment.academicClass', 'sourceEnrollment.section', 'targetClass', 'targetSection', 'targetAcademicYear'])->where('school_id', $this->school->id)->latest()->get(),
+            'students' => Student::where('school_id', $this->school->id)->where('status', 'active')->get(),
+            'enrollments' => Enrollment::with(['academicYear', 'academicClass', 'section'])->where('school_id', $this->school->id)->where('status', 'active')->when($this->student_id, fn ($q) => $q->where('student_id', $this->student_id))->get(),
+            'years' => AcademicYear::where('school_id', $this->school->id)->get(),
+            'classes' => AcademicClass::where('school_id', $this->school->id)->get(),
+            'targetSections' => $targetClassId ? Section::where('school_id', $this->school->id)->where('class_id', $targetClassId)->get() : collect(),
+        ]);
     }
 }
