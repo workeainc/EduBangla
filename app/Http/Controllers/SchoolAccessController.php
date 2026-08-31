@@ -48,6 +48,7 @@ class SchoolAccessController extends Controller
         $links = match ($membership->role) {
             'school-admin' => [
                 'Academic setup' => route('admin.class-groups', $school),
+                'Students & enrollment' => route('admin.students.enrollment', $school),
                 'Teachers & staff' => route('admin.teachers', $school),
                 'Timetable' => route('admin.timetables', $school),
                 'Attendance' => route('admin.attendance', $school),

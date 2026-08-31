@@ -23,6 +23,7 @@ use App\Livewire\Admin\QuestionVersions;
 use App\Livewire\Admin\ReportCardDetail;
 use App\Livewire\Admin\ReportCards as AdminReportCards;
 use App\Livewire\Admin\ResultManagement;
+use App\Livewire\Admin\StudentEnrollment;
 use App\Livewire\Admin\Timetables as AdminTimetables;
 use App\Livewire\Attendance\Management as AttendanceManagement;
 use App\Livewire\Communication\Inbox as CommunicationInbox;
@@ -77,6 +78,7 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
         Route::get('/academic/class-groups', PhaseThreeManagement::class)->defaults('screen', 'class-groups')->name('admin.class-groups');
         Route::get('/academic/subject-assignments', PhaseThreeManagement::class)->defaults('screen', 'subject-assignments')->name('admin.subject-assignments');
         Route::get('/academic/teacher-assignments', PhaseThreeManagement::class)->defaults('screen', 'teacher-assignments')->name('admin.teacher-assignments');
+        Route::get('/students/enrollment', StudentEnrollment::class)->name('admin.students.enrollment');
     });
     Route::get('schools/{school}/admin/teachers/{teacher}/profile', function (School $school, Teacher $teacher) {
         abort_unless($teacher->school_id === $school->id, 404);

@@ -6,6 +6,7 @@
     $role = $membership?->role;
     $adminLinks = [
         ['label' => 'Academic setup', 'route' => 'admin.class-groups', 'match' => 'admin.class-groups'],
+        ['label' => 'Students & enrollment', 'route' => 'admin.students.enrollment', 'match' => 'admin.students.enrollment'],
         ['label' => 'Teachers & staff', 'route' => 'admin.teachers', 'match' => 'admin.teachers*'],
         ['label' => 'Attendance', 'route' => 'admin.attendance', 'match' => 'admin.attendance*'],
         ['label' => 'Exams', 'route' => 'admin.exams', 'match' => 'admin.exams*'],
