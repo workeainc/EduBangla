@@ -9,7 +9,6 @@ use App\Models\Exam;
 use App\Models\ExamSchedule;
 use App\Models\School;
 use App\Models\Section;
-use App\Models\SubjectAssignment;
 use App\Models\Subject;
 use App\Models\TeacherAssignment;
 use Illuminate\Support\Facades\Gate;
