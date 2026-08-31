@@ -29,4 +29,24 @@ class FrontendPrimitiveTest extends TestCase
         $this->assertStringContainsString('data-label="Name"', $html);
         $this->assertStringContainsString('Results', $html);
     }
+
+    public function test_shared_primitives_expose_keyboard_and_live_region_contracts(): void
+    {
+        $html = Blade::render('<x-ui.confirm-dialog title="Delete record" message="This cannot be undone.">Delete</x-ui.confirm-dialog><x-ui.alert type="success">Saved</x-ui.alert><x-ui.tabs :tabs="[[\'key\'=>\'one\',\'label\'=>\'One\']]" active="one" />');
+
+        $this->assertStringContainsString('aria-haspopup="dialog"', $html);
+        $this->assertStringContainsString('aria-describedby="confirm-', $html);
+        $this->assertStringContainsString('@keydown.escape.window', $html);
+        $this->assertStringContainsString('aria-live="polite"', $html);
+        $this->assertStringContainsString('role="tablist"', $html);
+        $this->assertStringContainsString('aria-selected="true"', $html);
+    }
+
+    public function test_multiple_confirmation_dialogs_have_unique_label_ids(): void
+    {
+        $html = Blade::render('<x-ui.confirm-dialog title="First" /><x-ui.confirm-dialog title="Second" />');
+
+        preg_match_all('/aria-labelledby="([^"]+)"/', $html, $labels);
+        $this->assertCount(2, array_unique($labels[1]));
+    }
 }

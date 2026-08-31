@@ -44,6 +44,7 @@
     @livewireStyles
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+    <a href="#main-content" class="ui-skip-link">Skip to main content</a>
     @if($activeSchool && auth()->check())
         <div class="min-h-screen lg:flex">
             <aside class="w-full border-b border-slate-200 bg-white lg:min-h-screen lg:w-64 lg:border-b-0 lg:border-r">
@@ -62,14 +63,14 @@
                     <div><p class="text-xs font-medium uppercase tracking-wide text-slate-400">Current school</p><p class="font-semibold">{{ $activeSchool->name }}</p></div>
                     <div class="flex items-center gap-3 text-sm"><a href="{{ route('schools.index') }}" class="text-slate-600 hover:text-indigo-700">Switch school</a><span class="hidden text-slate-300 sm:inline">|</span><span class="hidden text-slate-600 sm:inline">{{ auth()->user()->name }}</span><form method="POST" action="{{ route('logout') }}">@csrf<button class="font-medium text-slate-600 hover:text-red-600">Sign out</button></form></div>
                 </header>
-                <main class="mx-auto w-full max-w-7xl px-5 py-6 lg:px-8 lg:py-8">
+                <main id="main-content" tabindex="-1" class="mx-auto w-full max-w-7xl px-5 py-6 outline-none lg:px-8 lg:py-8">
                     <x-ui.flash-message />
                     {{ $slot }}
                 </main>
             </div>
         </div>
     @else
-        {{ $slot }}
+        <main id="main-content" tabindex="-1" class="outline-none">{{ $slot }}</main>
     @endif
     @livewireScripts
 </body>
