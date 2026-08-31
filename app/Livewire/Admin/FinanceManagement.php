@@ -22,6 +22,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\School;
 use App\Models\Student;
+use App\Models\StudentFeeAssignment;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 
@@ -65,6 +66,10 @@ class FinanceManagement extends Component
 
     public $adjustment_id;
 
+    public $structure_id;
+
+    public string $message = '';
+
     public function mount(School $school, string $screen = 'dashboard', ?Invoice $invoice = null): void
     {
         $this->school = $school;
@@ -81,6 +86,7 @@ class FinanceManagement extends Component
         $this->validate(['code' => 'required|string|max:64', 'name' => 'required|string|max:255', 'description' => 'nullable|string']);
         app(CreateFeeCategory::class)->handle(auth()->user(), $this->school->id, ['code' => $this->code, 'name' => $this->name, 'description' => $this->description]);
         $this->reset(['code', 'name', 'description']);
+        $this->message = 'Fee category created.';
     }
 
     public function createStructure(): void
@@ -88,54 +94,63 @@ class FinanceManagement extends Component
         $this->validate(['name' => 'required|string|max:255', 'academic_year_id' => 'required|integer', 'class_id' => 'required|integer', 'fee_category_id' => 'required|integer', 'amount' => 'required|numeric|min:0', 'due_date' => 'nullable|date']);
         app(CreateFeeStructure::class)->handle(auth()->user(), $this->school->id, ['name' => $this->name, 'academic_year_id' => $this->academic_year_id, 'class_id' => $this->class_id, 'items' => [['fee_category_id' => $this->fee_category_id, 'amount' => $this->amount, 'due_date' => $this->due_date]]]);
         $this->reset(['name', 'academic_year_id', 'class_id', 'fee_category_id', 'amount', 'due_date']);
+        $this->message = 'Fee structure created.';
     }
 
     public function activateStructure(int $id): void
     {
         app(ActivateFeeStructure::class)->handle(auth()->user(), $this->school->id, $id);
+        $this->message = 'Fee structure activated.';
     }
 
     public function generateAssignments(int $structureId): void
     {
         $this->validate(['enrollment_id' => 'required|integer']);
         app(GenerateFeeAssignments::class)->handle(auth()->user(), $this->school->id, $structureId, [$this->enrollment_id]);
+        $this->message = 'Fee assignments generated.';
     }
 
     public function generateInvoice(): void
     {
         $this->validate(['enrollment_id' => 'required|integer', 'assignment_ids' => 'required|array|min:1']);
         app(GenerateInvoice::class)->handle(auth()->user(), $this->school->id, $this->enrollment_id, $this->assignment_ids);
+        $this->message = 'Invoice issued.';
     }
 
     public function recordPayment(): void
     {
         $this->validate(['student_id' => 'required|integer', 'enrollment_id' => 'required|integer', 'payment_amount' => 'required|numeric|min:0.01', 'invoice_id' => 'required|integer']);
         app(RecordPayment::class)->handle(auth()->user(), $this->school->id, ['student_id' => $this->student_id, 'enrollment_id' => $this->enrollment_id, 'amount' => $this->payment_amount, 'allocations' => [['invoice_id' => $this->invoice_id, 'amount' => $this->payment_amount]]]);
+        $this->message = 'Payment recorded.';
     }
 
     public function postAdjustment(): void
     {
         $this->validate(['invoice_id' => 'required|integer', 'payment_amount' => 'required|numeric|min:0.01', 'reason' => 'required|string|max:255']);
         app(PostFinancialAdjustment::class)->handle(auth()->user(), $this->school->id, ['invoice_id' => $this->invoice_id, 'amount' => $this->payment_amount, 'reason' => $this->reason]);
+        $this->message = 'Credit adjustment posted.';
     }
 
     public function reversePayment(int $id): void
     {
         app(ReversePayment::class)->handle(auth()->user(), $this->school->id, $id);
+        $this->message = 'Payment reversed.';
     }
 
     public function reverseAdjustment(int $id): void
     {
         app(ReverseFinancialAdjustment::class)->handle(auth()->user(), $this->school->id, $id);
+        $this->message = 'Adjustment reversed.';
     }
 
     public function voidInvoice(int $id): void
     {
         app(VoidInvoice::class)->handle(auth()->user(), $this->school->id, $id);
+        $this->message = 'Invoice voided.';
     }
 
     public function render()
     {
-        return view('livewire.admin.finance-management', ['categories' => FeeCategory::where('school_id', $this->school->id)->latest()->get(), 'structures' => FeeStructure::with('items.category')->where('school_id', $this->school->id)->latest()->get(), 'invoices' => Invoice::with('student')->where('school_id', $this->school->id)->latest()->get(), 'payments' => Payment::with('student')->where('school_id', $this->school->id)->latest()->get(), 'adjustments' => FinancialAdjustment::with('invoice')->where('school_id', $this->school->id)->latest()->get(), 'years' => AcademicYear::where('school_id', $this->school->id)->orderBy('name')->get(), 'classes' => AcademicClass::where('school_id', $this->school->id)->orderBy('sort_order')->get(), 'students' => Student::where('school_id', $this->school->id)->where('status', 'active')->orderBy('student_code')->get(), 'enrollments' => Enrollment::with(['student', 'academicYear', 'academicClass', 'section'])->where('school_id', $this->school->id)->where('status', 'active')->latest()->get()]);
+        return view('livewire.admin.finance-management', ['categories' => FeeCategory::where('school_id', $this->school->id)->latest()->get(), 'structures' => FeeStructure::with('items.category')->where('school_id', $this->school->id)->latest()->get(), 'invoices' => Invoice::with('student')->where('school_id', $this->school->id)->latest()->get(), 'payments' => Payment::with('student')->where('school_id', $this->school->id)->latest()->get(), 'adjustments' => FinancialAdjustment::with('invoice')->where('school_id', $this->school->id)->latest()->get(), 'assignments' => StudentFeeAssignment::with('student')->where('school_id', $this->school->id)->where('status', 'assigned')->latest()->get(), 'years' => AcademicYear::where('school_id', $this->school->id)->orderBy('name')->get(), 'classes' => AcademicClass::where('school_id', $this->school->id)->orderBy('sort_order')->get(), 'students' => Student::where('school_id', $this->school->id)->where('status', 'active')->orderBy('student_code')->get(), 'enrollments' => Enrollment::with(['student', 'academicYear', 'academicClass', 'section'])->where('school_id', $this->school->id)->where('status', 'active')->latest()->get()]);
     }
 }
