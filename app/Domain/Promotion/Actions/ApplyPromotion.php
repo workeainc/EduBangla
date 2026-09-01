@@ -3,6 +3,7 @@
 namespace App\Domain\Promotion\Actions;
 
 use App\Domain\Audit\RecordAudit;
+use App\Domain\Student\Actions\CreateEnrollment;
 use App\Models\AcademicClass;
 use App\Models\AcademicYear;
 use App\Models\Enrollment;
@@ -30,7 +31,25 @@ class ApplyPromotion
             if (Enrollment::where(['school_id' => $schoolId, 'student_id' => $p->student_id, 'academic_year_id' => $p->target_academic_year_id, 'status' => 'active'])->exists()) {
                 throw ValidationException::withMessages(['promotion' => 'Target enrollment already exists.']);
             }
-            $target = Enrollment::create(['school_id' => $schoolId, 'student_id' => $p->student_id, 'academic_year_id' => $p->target_academic_year_id, 'class_id' => $p->target_class_id, 'section_id' => $p->target_section_id, 'status' => 'active', 'enrolled_at' => now()->toDateString()]);
+            $targetSection = Section::where(['id' => $p->target_section_id, 'school_id' => $schoolId, 'class_id' => $p->target_class_id])->lockForUpdate()->firstOrFail();
+            $nextRoll = ((int) Enrollment::where([
+                'school_id' => $schoolId,
+                'academic_year_id' => $p->target_academic_year_id,
+                'class_id' => $p->target_class_id,
+                'section_id' => $targetSection->id,
+                'group_scope' => 0,
+            ])->max('roll')) + 1;
+            $target = app(CreateEnrollment::class)->handle([
+                'school_id' => $schoolId,
+                'student_id' => $p->student_id,
+                'academic_year_id' => $p->target_academic_year_id,
+                'class_id' => $p->target_class_id,
+                'section_id' => $targetSection->id,
+                'group_id' => null,
+                'roll' => $nextRoll,
+                'status' => 'active',
+                'enrolled_at' => now()->toDateString(),
+            ]);
             if ($afterEnrollment) {
                 $afterEnrollment($target);
             }

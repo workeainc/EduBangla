@@ -37,3 +37,15 @@ The feature suites cover each consequential transaction, tenant substitution,
 immutable snapshot and lifecycle separately. Cross-domain pilot acceptance must
 run the ordered workflow above with a real authorized school user after the
 environment supports authenticated browser verification.
+
+## PILOT-001-P0-001 resolution
+
+The 2026-09-01 rich rehearsal exposed a promotion-apply failure: the target
+enrollment schema requires a non-null roll, while `ApplyPromotion` previously
+created that enrollment without one. `ApplyPromotion` now allocates the next
+server-side roll within the exact school/year/class/section/group-scope and
+delegates creation to `CreateEnrollment`, preserving its existing validation and
+transaction boundary. Regression coverage verifies successful apply, scope-safe
+non-colliding allocation, rollback, repeated-apply rejection, and the existing
+promotion/enrollment suites. Status: **RESOLVED**; PILOT-001 is ready to resume
+from the blocked promotion step.
