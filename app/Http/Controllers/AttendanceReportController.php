@@ -74,7 +74,14 @@ class AttendanceReportController extends Controller
         $filters = $this->filters($request, $school, includeMonth: true);
         $month = $filters['month'] ?? now()->format('Y-m');
         $range = [Carbon::createFromFormat('Y-m', $month)->startOfMonth(), Carbon::createFromFormat('Y-m', $month)->endOfMonth()];
-        $aggregates = StudentAttendance::join('attendance_sessions', 'attendance_sessions.id', '=', 'student_attendance.attendance_session_id')->where('student_attendance.school_id', $school->id)->whereBetween('attendance_sessions.attendance_date', $range)->selectRaw("student_attendance.student_id,SUM(student_attendance.status='present') present,SUM(student_attendance.status='absent') absent,SUM(student_attendance.status='late') late,SUM(student_attendance.status='excused') excused,COUNT(*) total")->groupBy('student_attendance.student_id')->get()->keyBy('student_id');
+        $aggregates = StudentAttendance::join('attendance_sessions', 'attendance_sessions.id', '=', 'student_attendance.attendance_session_id')
+            ->where('student_attendance.school_id', $school->id)
+            ->whereBetween('attendance_sessions.attendance_date', $range)
+            ->when($filters['academic_year_id'] ?? null, fn ($q, $id) => $q->where('attendance_sessions.academic_year_id', $id))
+            ->when($filters['class_id'] ?? null, fn ($q, $id) => $q->where('attendance_sessions.class_id', $id))
+            ->when($filters['section_id'] ?? null, fn ($q, $id) => $q->where('attendance_sessions.section_id', $id))
+            ->selectRaw("student_attendance.student_id,SUM(student_attendance.status='present') present,SUM(student_attendance.status='absent') absent,SUM(student_attendance.status='late') late,SUM(student_attendance.status='excused') excused,COUNT(*) total")
+            ->groupBy('student_attendance.student_id')->get()->keyBy('student_id');
         $rows = Student::where('school_id', $school->id)->get()->map(function ($s) use ($aggregates) {
             $a = $aggregates->get($s->id) ?? (object) ['present' => 0, 'absent' => 0, 'late' => 0, 'excused' => 0, 'total' => 0];
             $d = (int) $a->total;

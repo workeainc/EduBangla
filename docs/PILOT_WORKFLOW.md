@@ -49,3 +49,14 @@ transaction boundary. Regression coverage verifies successful apply, scope-safe
 non-colliding allocation, rollback, repeated-apply rejection, and the existing
 promotion/enrollment suites. Status: **RESOLVED**; PILOT-001 is ready to resume
 from the blocked promotion step.
+
+## PILOT-001-P1-001 resolution
+
+The monthly attendance report previously validated academic-year, class and
+section filters but applied only the month to its aggregate query. The monthly
+query now constrains the existing attendance-session join by each validated
+placement filter, so an empty requested placement cannot broaden to unrelated
+attendance. Regression coverage verifies class, section, academic-year and
+empty-scope isolation while preserving the existing tenant and relationship
+validation contract. Status: **RESOLVED**; PILOT-001 is ready to resume from
+attendance reporting.
