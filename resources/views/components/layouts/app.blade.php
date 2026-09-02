@@ -5,7 +5,7 @@
         : null;
     $role = $membership?->role;
     $adminLinks = [
-        ['label' => 'Academic setup', 'route' => 'admin.class-groups', 'match' => 'admin.class-groups'],
+        ['label' => 'Academic setup', 'route' => 'admin.academic-setup', 'matches' => ['admin.academic-*', 'admin.classes', 'admin.sections', 'admin.subjects', 'admin.groups', 'admin.class-groups', 'admin.subject-assignments', 'admin.teacher-assignments']],
         ['label' => 'Students & enrollment', 'route' => 'admin.students.enrollment', 'match' => 'admin.students.enrollment'],
         ['label' => 'Teachers & staff', 'route' => 'admin.teachers', 'match' => 'admin.teachers*'],
         ['label' => 'Attendance', 'route' => 'admin.attendance', 'match' => 'admin.attendance*'],
@@ -55,7 +55,7 @@
                 </div>
                 <nav class="flex gap-1 overflow-x-auto px-3 pb-3 lg:block lg:space-y-1 lg:px-3" aria-label="Main navigation">
                     @foreach($links as $link)
-                        <a href="{{ route($link['route'], $activeSchool) }}" class="block whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs($link['match']) ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">{{ $link['label'] }}</a>
+                        <a href="{{ route($link['route'], $activeSchool) }}" class="block whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs(...($link['matches'] ?? [$link['match']])) ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">{{ $link['label'] }}</a>
                     @endforeach
                 </nav>
             </aside>

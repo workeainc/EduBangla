@@ -5,6 +5,12 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\SchoolAccessController;
 use App\Livewire\Academic\StudentTimetable;
 use App\Livewire\Academic\TeacherTimetable;
+use App\Livewire\Admin\AcademicClassManagement;
+use App\Livewire\Admin\AcademicGroupManagement;
+use App\Livewire\Admin\AcademicSectionManagement;
+use App\Livewire\Admin\AcademicSetupDashboard;
+use App\Livewire\Admin\AcademicSubjectManagement;
+use App\Livewire\Admin\AcademicYearManagement;
 use App\Livewire\Admin\AttendanceCorrections;
 use App\Livewire\Admin\ExamCorrectionHistory;
 use App\Livewire\Admin\ExamManagement;
@@ -67,6 +73,12 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
     })->name('schools.show');
 
     Route::prefix('schools/{school}/admin')->middleware('school.admin')->group(function () {
+        Route::get('/academic', AcademicSetupDashboard::class)->name('admin.academic-setup');
+        Route::get('/academic/years', AcademicYearManagement::class)->name('admin.academic-years');
+        Route::get('/academic/classes', AcademicClassManagement::class)->name('admin.classes');
+        Route::get('/academic/sections', AcademicSectionManagement::class)->name('admin.sections');
+        Route::get('/academic/subjects', AcademicSubjectManagement::class)->name('admin.subjects');
+        Route::get('/academic/groups', AcademicGroupManagement::class)->name('admin.groups');
         Route::get('/teachers', PhaseThreeManagement::class)->defaults('screen', 'teachers')->name('admin.teachers');
         Route::get('/teachers/create', PhaseThreeManagement::class)->defaults('screen', 'teachers')->name('admin.teachers.create');
         Route::get('/teachers/{teacher}', PhaseThreeManagement::class)->defaults('screen', 'teachers')->name('admin.teachers.show');
